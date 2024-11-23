@@ -1,0 +1,39 @@
+.navbar{
+    width:100%;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+
+    padding: 15px 7%;
+}
+
+.logo {
+    width: 80px;
+    cursor: pointer;
+}
+
+ul {
+    flex: 1;
+    list-style: none;
+    text-align: right;
+}
+
+ul li {
+    display: inline-block;
+    margin: 10px 20px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.toggle-icon {
+    width: 50px;
+    cursor: pointer;
+    margin-left: 20px;
+}
+
+.dark .navbar {
+    background-color: #000;
+    color: white;
+}
+
