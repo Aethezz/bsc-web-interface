@@ -18,13 +18,16 @@ const Navbar = ({ theme, setTheme }) => {
             <img src={logo} alt='' className='logo' />
 
             <ul>
-                <li onClick={() => scrollToSection('home')}>Home</li>
-                <li onClick={() => scrollToSection('about')}>About</li>
-                <li onClick={() => scrollToSection('videos')}>Videos</li>
-                <li onClick={() => scrollToSection('contact')}>Contact</li>
+                <li className="nav-item" onClick={() => scrollToSection('home')}>Home</li>
+                <li className="nav-item" onClick={() => scrollToSection('about')}>About</li>
+                <li className="nav-item" onClick={() => scrollToSection('videos')}>Videos</li>
+                <li className="nav-item" onClick={() => scrollToSection('contact')}>Contact</li>
             </ul>
 
-            <img onClick={toggleTheme} src={theme === "light" ? toggle_light : toggle_dark} alt='' className='toggle-icon' />
+            <div className='toggle-icon-container' onClick={toggleTheme}>
+                <img src={theme === "light" ? toggle_light : toggle_dark} alt='' className='toggle-icon' />
+            </div>
+    
         </div>
     );
 };

@@ -8,6 +8,33 @@
     padding: 15px 7%;
 }
 
+.nav-item {
+    display: inline-block;
+    margin: 0 15px;
+    cursor: pointer;
+    position: relative;
+}
+
+.nav-item::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background: black;
+    transition: width 0.3s;
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+}
+
+.nav-item:hover::after {
+    width: 100%;
+}
+
+.toggle-icon {
+    cursor: pointer;
+}
+
 .logo {
     width: 80px;
     cursor: pointer;
@@ -30,10 +57,12 @@ ul li {
     width: 50px;
     cursor: pointer;
     margin-left: 20px;
+
 }
 
 .dark .navbar {
     background-color: #000;
     color: white;
+    transition: 0.5s;
 }
 
