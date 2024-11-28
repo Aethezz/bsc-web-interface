@@ -1,0 +1,80 @@
+.home-container {
+    padding: 100px 20px; /* Adjust the padding to move the content down */
+    text-align: center;
+    background-color: #f9f9f9; /* Light background color */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.home-container.dark {
+    background-color: #333;
+    color: #f9f9f9;
+}
+
+.home-container h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.home-container.dark h1 {
+    color: #f9f9f9;
+}
+
+.home-container p {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.home-container.dark p {
+    color: #ccc;
+}
+
+.link-input-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.link-input {
+    padding: 10px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.link-input:focus {
+    border-color: #007bff;
+}
+
+.link-input.dark {
+    background-color: #555;
+    color: #f9f9f9;
+    border-color: #555;
+}
+
+.link-input-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.link-input-button:hover {
+    background-color: #0056b3;
+}
+
+.link-input-button:focus {
+    outline: none;
+}
+
+.link-input-button.dark {
+    background-color: #0056b3;
+}
