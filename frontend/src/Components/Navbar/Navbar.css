@@ -27,6 +27,11 @@
     left: 0;
 }
 
+.nav-item a {
+    text-decoration: none;
+    color: inherit;
+}
+
 .nav-item:hover::after {
     width: 100%;
 }
