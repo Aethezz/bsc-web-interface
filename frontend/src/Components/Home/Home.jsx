@@ -10,10 +10,12 @@ const Home = ({ theme }) => {
 
     return (
         <div className={`home-container ${theme}`}>
-            <h1>Discover AI Powered Emotions</h1>
-            <p>Link your YouTube video below</p>
-            <p>And we will show you the emotions of the people in the video</p>
-            <LinkInput onSubmit={handleLinkSubmit} />
+            <div className='home-text'>
+                <h1>Discover AI Powered Emotions</h1>
+                <p>Link your YouTube video below</p>
+                <p>And we will show you the emotioal classification of the video</p>
+                <LinkInput onSubmit={handleLinkSubmit} />
+            </div>
         </div>
     );
 };

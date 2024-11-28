@@ -10,24 +10,40 @@
     color: #f9f9f9;
 }
 
-.home-container h1 {
+.home-text {
+    background-color: white;
+    padding: 60px; /* Increase padding to make the box larger */
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    max-width: 800px; /* Increase max-width to make the box wider */
+    margin: 0 auto;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.home-container.dark .home-text {
+    background-color: #444;
+    color: #f9f9f9;
+}
+
+.home-text h1 {
     font-size: 2.5em;
     font-weight: bold;
     color: #333;
     margin-bottom: 20px;
 }
 
-.home-container.dark h1 {
+.home-container.dark .home-text h1 {
     color: #f9f9f9;
 }
 
-.home-container p {
+.home-text p {
     font-size: 1.2em;
     color: #666;
     margin-bottom: 10px;
 }
 
-.home-container.dark p {
+.home-container.dark .home-text p {
     color: #ccc;
 }
 
