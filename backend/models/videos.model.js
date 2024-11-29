@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-const mongoose = require('mongoose');
-
 // StaticRatings Schema
 const staticRatingSchema = new mongoose.Schema({
     video_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Videos', required: true },
@@ -24,8 +22,4 @@ const Video = mongoose.model('Videos', videoSchema);
 const StaticRating = mongoose.model('StaticRatings', staticRatingSchema);
 const DynamicRating = mongoose.model('DynamicRatings', dynamicRatingSchema);
 
-module.exports = {
-    Video,
-    StaticRating,
-    DynamicRating
-};
+export { Video, StaticRating, DynamicRating };
