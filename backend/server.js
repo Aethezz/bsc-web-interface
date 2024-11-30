@@ -1,7 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import Video from './models/videos.model.js'; 
+import  models  from './models/videos.model.js'; 
+const {Video} = models;
 
 dotenv.config();
 
