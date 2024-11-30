@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import Video from './models/videos.model.js'; 
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ app.post("/api/videos", async (req, res) => {
         return res.status(400).json({ success: false, message: "Video file is required" });
     }
 
-    // Create a new video instance (ensure Video model is imported and used correctly)
+    // Create a new video instance 
     try {
         const video = new Video({ video_file, youtube_link }); // Import Video model
         await video.save(); // Save video details to the database
