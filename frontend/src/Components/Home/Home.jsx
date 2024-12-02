@@ -8,6 +8,8 @@ const Home = ({ theme }) => {
         // Handle the submitted link here
     };
 
+    // Could add a video / gif of the app in action here
+    
     return (
         <div className={`home-container ${theme}`}>
             <div className='home-text'>

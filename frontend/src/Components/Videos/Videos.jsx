@@ -1,6 +1,10 @@
 import React from 'react';
 
 const Videos = () => {
+
+    // dynamic display bar 
+    // cool loading animation 
+    // have some sort of section for the AI to speak on 
     return (
         <div>
             <h1>Videos</h1>

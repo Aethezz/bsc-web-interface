@@ -1,43 +1,16 @@
-.navbar{
-    width:100%;
+.navbar {
+    width: 100%;
     align-items: center;
     display: flex;
     justify-content: space-between;
     background-color: white;
-
     padding: 15px 7%;
+    /* transition: background-color 0.5s, color 0.5s; */
 }
 
-.nav-item {
-    display: inline-block;
-    margin: 0 15px;
-    cursor: pointer;
-    position: relative;
-}
-
-.nav-item::after {
-    content: '';
-    display: block;
-    width: 0;
-    height: 2px;
-    background: black;
-    transition: width 0.3s;
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-}
-
-.nav-item a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.nav-item:hover::after {
-    width: 100%;
-}
-
-.toggle-icon {
-    cursor: pointer;
+.dark .navbar {
+    background-color: #222;
+    color: white;
 }
 
 .logo {
@@ -56,18 +29,44 @@ ul li {
     margin: 10px 20px;
     font-size: 20px;
     cursor: pointer;
+    position: relative;
+}
+
+ul li::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background: black;
+    transition: width 0.3s;
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+}
+
+ul li:hover::after {
+    width: 100%;
+}
+
+.dark ul li::after {
+    background: white;
+}
+
+ul li a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul li:hover a {
+    color: #007bff;
+}
+
+.dark ul li:hover a {
+    color: white;
 }
 
 .toggle-icon {
     width: 50px;
     cursor: pointer;
     margin-left: 20px;
-
 }
-
-.dark .navbar {
-    background-color: #000;
-    color: white;
-    transition: 0.5s;
-}
-
