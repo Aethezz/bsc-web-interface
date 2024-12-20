@@ -5,7 +5,7 @@ import Home from './Components/Home/Home.jsx';
 import About from './Components/About/About.jsx';
 import Videos from './Components/Videos/Videos.jsx';
 import Contact from './Components/Contact/Contact.jsx';
-import Footer from './Components/Footer/footer.jsx';
+import Footer from './Components/Footer/Footer.jsx';
 
 const App = () => {
     const [theme, setTheme] = useState('light');

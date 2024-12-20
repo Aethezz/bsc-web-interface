@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './Contact.css';
 
+// Use the emailjs api to make secure end to end calls to send emails
+
 const Contact = ({ theme }) => {
     const [formData, setFormData] = useState({
         name: '',

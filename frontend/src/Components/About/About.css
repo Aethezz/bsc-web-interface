@@ -1,0 +1,211 @@
+.about-container {
+    min-height: 100vh;
+    padding: 4rem 2rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* The color scheme of our dark theme is #333 and # 222*/
+
+  /* Theme Styles */
+  .about-container.light {
+    background-color: #f8f9fa;
+    color: #2d3748;
+  }
+  
+  .about-container.dark {
+    background-color: #333;
+    color: #f7fafc;
+  }
+  
+  /* Section Styles */
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  /* Team Section */
+  .team-section {
+    margin-bottom: 5rem;
+  }
+  
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .team-card {
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+    animation: fadeIn 0.8s ease-out;
+  }
+  
+  .light .team-card {
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .team-card {
+    background-color: #444;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .team-card:hover {
+    transform: translateY(-8px);
+  }
+  
+  .image-container {
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1.5rem;
+  }
+  
+  .team-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .team-card:hover .team-image {
+    transform: scale(1.1);
+  }
+  
+  .member-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .member-role {
+    font-size: 1rem;
+    opacity: 0.8;
+  }
+  
+  /* Project Section */
+  .project-section {
+    max-width: 900px;
+    margin: 0 auto 5rem;
+    padding: 3rem;
+    border-radius: 1rem;
+    animation: slideUp 0.8s ease-out;
+  }
+  
+  .light .project-section {
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .project-section {
+    background-color: #444;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .project-content {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    text-align: center;
+  }
+  
+  /* Research Section */
+  .research-section {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .research-grid {
+    display: grid;
+    gap: 1.5rem;
+    animation: fadeIn 1s ease-out;
+  }
+  
+  .paper-card {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .light .paper-card {
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .paper-card {
+    background-color: #444;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .paper-card:hover {
+    transform: translateX(8px);
+  }
+  
+  .paper-link {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+  }
+  
+  .light .paper-link {
+    color: black;
+  }
+  
+  .dark .paper-link {
+    color: white;
+  }
+  
+  .paper-link:hover {
+    color: #2b6cb0;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .about-container {
+      padding: 2rem 1rem;
+    }
+  
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+  
+    .team-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  
+    .project-section {
+      padding: 2rem;
+    }
+  }

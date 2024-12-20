@@ -4,6 +4,7 @@
     transition: background-color 0.3s, color 0.3s;
 }
 
+/* Try to fix the color scheme for the dark theme */
 .contact-container.light {
     background-color: #f9f9f9;
     color: #222;

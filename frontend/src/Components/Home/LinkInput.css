@@ -28,7 +28,22 @@
     transition: background-color 0.3s;
 }
 
+
+.link-input-button.dark {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
 .link-input-button:hover {
+    background-color: #0056b3;
+}
+
+.link-input-button.dark:hover {
     background-color: #0056b3;
 }
 
