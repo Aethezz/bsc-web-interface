@@ -5,6 +5,7 @@ import "./Videos.css"
 const VideoAnalysisTester = ({ theme }) => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [hasStarted, setHasStarted] = useState(false);
     const [analysisComplete, setAnalysisComplete] = useState(false);
     const [emotionData, setEmotionData] = useState({
         joy: 0,
@@ -91,6 +92,27 @@ const VideoAnalysisTester = ({ theme }) => {
         return colors[emotion] || '#666';
     };
 
+    const handleStartAnalysis = () => {
+        setHasStarted(true);
+        setIsAnalyzing(true);
+        setProgress(0);
+        setAnalysisComplete(false);
+
+         // Simulate analysis progress
+         const interval = setInterval(() => {
+            setProgress((prevProgress) => {
+                if (prevProgress >= 100) {
+                    clearInterval(interval);
+                    setIsAnalyzing(false);
+                    setAnalysisComplete(true);
+                    setEmotionData(generateMockAnalysis());
+                    return 100;
+                }
+                return prevProgress + 50;
+            });
+        }, 500);
+    };
+
     const getDominantEmotion = () => {
         return Object.entries(emotionData).reduce((a, b) => a[1] > b[1] ? a : b)[0];
     };
@@ -139,6 +161,7 @@ const VideoAnalysisTester = ({ theme }) => {
                 </div>
                 
                 {/* Make it so that this div appears only when you have put inside data because scrolling is a pain*/}
+                {hasStarted && ( 
                 <div className={`analysis-results ${analysisComplete ? 'visible' : ''}`}>
                     <div className="sentiment-box">
                         <h3>Primary Emotion</h3>
@@ -154,10 +177,11 @@ const VideoAnalysisTester = ({ theme }) => {
                         {renderEmotionBars()}
                     </div>
                 </div>
+                )}
 
                 <button 
                     className="control-button"
-                    onClick={startAnalysis}
+                    onClick={handleStartAnalysis}
                     disabled={isAnalyzing}
                 >
                     {isAnalyzing ? <FaPause /> : <FaPlayCircle />}
