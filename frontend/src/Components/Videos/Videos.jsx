@@ -53,6 +53,8 @@ const VideoAnalysisTester = ({ theme }) => {
         
         // Get the analysis results
         const results = await analyzeSentiment();
+
+        // Make it so that it looks better 
         
         if (results) {
             // Animate progress bar
@@ -93,6 +95,7 @@ const VideoAnalysisTester = ({ theme }) => {
         return Object.entries(emotionData).reduce((a, b) => a[1] > b[1] ? a : b)[0];
     };
 
+    // Make the entire  div of anaylsis results disapaer
     const renderEmotionBars = () => {
         return Object.entries(emotionData).map(([emotion, value]) => (
             <div key={emotion} className="emotion-stat-row">
@@ -134,7 +137,8 @@ const VideoAnalysisTester = ({ theme }) => {
                         </div>
                     )}
                 </div>
-
+                
+                {/* Make it so that this div appears only when you have put inside data because scrolling is a pain*/}
                 <div className={`analysis-results ${analysisComplete ? 'visible' : ''}`}>
                     <div className="sentiment-box">
                         <h3>Primary Emotion</h3>

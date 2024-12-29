@@ -31,8 +31,9 @@ const Home = ({ theme }) => {
             <div className="what-we-do-section">
                 <h2>What we do</h2>
                 <p>Here we put a video or gif animation of the model at work analyzing</p>
+                {/*Might learn framer or some js library for this*/}
                 <button className={`trial-button ${theme}`}>
-                    Start free trial
+                    View
                 </button>
             </div>
 

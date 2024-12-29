@@ -5,6 +5,7 @@ const About = ({ theme }) => {
   return (
     <div className={`about-container ${theme}`}>
       {/* Team Section */}
+     {/*
       <section className="team-section">
         <h2 className="section-title">Our Team</h2>
         <div className="team-grid">
@@ -27,16 +28,21 @@ const About = ({ theme }) => {
           ))}
         </div>
       </section>
+      */}
 
       {/* Project Section */}
       <section className="project-section slide-up">
         <h2 className="section-title">About Our Project</h2>
         <div className="project-content">
           <p>
-            Our project aims to revolutionize the way we understand and interact with 
-            AI-powered emotional analysis. We are dedicated to providing cutting-edge 
-            solutions that help businesses and individuals gain insights into human 
-            emotions through advanced AI technology.
+          Brain Stimuli is a collaborative AI-driven research initiative 
+          led by a passionate group of second-year university students, 
+          guided by the expertise of UofT professor Dr. Fa-Hsuan Lin. 
+          Our mission is to explore the intersection of artificial intelligence 
+          and neuroscience by developing a model that can analyze and interpret 
+          human emotions from brief video clips. This work aims to shed light 
+          on the complexities of brain function and contribute to advancing 
+          neurological research.
           </p>
         </div>
       </section>

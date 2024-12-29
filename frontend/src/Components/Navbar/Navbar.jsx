@@ -26,9 +26,11 @@ const Navbar = ({ theme, setTheme }) => {
                 <li className="nav-item">
                     <Link to="/videos">Videos</Link>
                 </li>
+                {/*
                 <li className="nav-item">
                     <Link to="/contact">Contact</Link>
                 </li>
+                */}
             </ul>
 
             <div className="toggle-icon-container" onClick={toggleTheme}>
