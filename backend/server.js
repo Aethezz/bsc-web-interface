@@ -54,9 +54,16 @@ app.delete("/api/videos/:id", async (req, res) => {
     const { id } = req.params;
 
     try {
-        await Video.findByIdAndDelete(id);
-        res.status(200).json({success: true, message:"Video Data Deleted"});
-    } catch (error) {}
+        const deletedVideo = await Video.findByIdAndDelete(id);
+
+        if (!deletedVideo) {
+            return res.status(404).json({ success: false, message: "Video not found" });
+        }
+
+        res.status(200).json({ success: true, message: "Video Data Deleted" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error deleting video", error: error.message });
+    }
 });
 
 // Start the server only after connecting to the database
