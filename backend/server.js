@@ -11,6 +11,17 @@ const app = express();
 // Middleware to parse JSON
 app.use(express.json());
 
+// in theory should gather and list all the video ids submitted
+app.get("/api/videos", async (req, res) => {
+    try {
+        const videos = await Video.find({});
+        res.status(200).json({ success: true, data: videos});
+    } catch (error) { 
+        console.log("error in gathering video data", error.message);
+        res.status(500).json({ success:false, message: "Server Error" })
+    }
+})
+
 // Connect to MongoDB (if not imported from `./config/db.js`)
 /* Remove the next block if `connectDB` is defined externally */
 const connectDB = async () => {
@@ -50,6 +61,7 @@ app.post("/api/videos", async (req, res) => {
     }
 });
 
+// is meant to delete a videos data based on its video id
 app.delete("/api/videos/:id", async (req, res) => {
     const { id } = req.params;
 
