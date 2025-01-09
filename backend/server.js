@@ -61,6 +61,23 @@ app.post("/api/videos", async (req, res) => {
     }
 });
 
+app.put("/api/videos/:id", async (req, res) => {
+    const { id } = req.params;
+
+    const video = req.body;
+
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({sucess:false, message: "Invalid video ID"});
+    }
+
+    try{
+        const updatedVideo = await Video.findByIdAndUpdate(id, video,{new:true});
+        res.status(200).json({sucess: true , data: updatedVideo});
+    } catch (error) {
+        res.status(500).json({sucess: false, message: "Server Error"});
+    }
+});
+
 // is meant to delete a videos data based on its video id
 app.delete("/api/videos/:id", async (req, res) => {
     const { id } = req.params;
