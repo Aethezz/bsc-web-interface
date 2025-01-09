@@ -53,7 +53,8 @@ app.post("/api/videos", async (req, res) => {
 // Start the server only after connecting to the database
 (async () => {
     await connectDB(); // Ensure the database connection is established
-    app.listen(5000, () => {
-        console.log('Server started at http://localhost:5000');
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => {
+        console.log(`Server started at http://localhost:${PORT}`);
     });
 })();
