@@ -12,14 +12,14 @@ const dynamicRatingSchema = new mongoose.Schema({
     dynamic_rating_data: { type: mongoose.Schema.Types.Mixed, required: true } // JSONB-like structure
 });
 
-// Videos Schema
+// Video Schema
 const videoSchema = new mongoose.Schema({
     video_file: { type: String, required: true },
     youtube_link: { type: String, required: false },
 });
 
-const Video = mongoose.model('Videos', videoSchema);
-const StaticRating = mongoose.model('StaticRatings', staticRatingSchema);
-const DynamicRating = mongoose.model('DynamicRatings', dynamicRatingSchema);
+export const Video = mongoose.model('Videos', videoSchema);
+export const StaticRating = mongoose.model('StaticRatings', staticRatingSchema);
+export const DynamicRating = mongoose.model('DynamicRatings', dynamicRatingSchema);
 
 export default { Video, StaticRating, DynamicRating };
