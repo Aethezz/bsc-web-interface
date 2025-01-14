@@ -12,18 +12,20 @@ export const getVideos = async (req, res) => {
 };
 
 export const createVideo = async (req, res) => {
-    const { video_file, youtube_link } = req.body;
+    const { youtube_link } = req.body;
 
+    /*
     if (!video_file) {
         return res.status(400).json({ success: false, message: "Video file is required" });
     }
+    */
 
     try {
-        const video = new Video({ video_file, youtube_link });
+        const video = new Video({ youtube_link });
         await video.save();
         res.status(201).json({ success: true, data: video });
     } catch (error) {
-        console.error("Error in saving video details:", error.message);
+        console.error("Error in saving video:", error.message);
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };

@@ -1,15 +1,29 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './HomePage.css';
 import LinkInput from './LinkInput';
+import { saveVideo } from '../../services/Service.js';
 import {FaHeart, FaSmile, FaSadTear, FaFlushed } from 'react-icons/fa';
 
-const Home = ({ theme }) => {
-    const handleLinkSubmit = (link) => {
-        console.log('Submitted link:', link);
-        // Handle the submitted link here
+// Consider adding a hover affect to the cars instead of the crazy spin they have 
 
-        
-    };
+const Home = ({ theme }) => {
+
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const handleLinkSubmit = async (link) => {
+        try {
+          setLoading(true);
+          await saveVideo(link);
+          console.log('Video link saved successfully');
+        } catch (error) {
+          console.error('Error saving video:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+    // JOy, pleased, fear, sad 
 
     const emotionCards = [
         { name: 'Joy', icon: <FaSmile />, color: '#ffd700' },
@@ -25,6 +39,8 @@ const Home = ({ theme }) => {
                 <p>Link your YouTube video below</p>
                 <p>And we will show you the emotional classification of the video</p>
                 <LinkInput onSubmit={handleLinkSubmit} theme={theme} />
+                {loading && <p>Saving...</p>}
+                {error && <p className="error">{error}</p>}
             </div>
 
             {/* What We Do Section */}

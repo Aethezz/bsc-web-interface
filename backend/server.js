@@ -1,35 +1,38 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import cors from "cors";
 import videoRoutes from "./routes/video.routes.js";
 
 dotenv.config();
 
 const app = express();
 
-// Middleware to parse JSON
+// Middleware
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true
+}));
 app.use(express.json());
 
 // Connect to MongoDB
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        await mongoose.connect(process.env.MONGO_URI);
         console.log("MongoDB connected");
     } catch (error) {
         console.error(`Error connecting to MongoDB: ${error.message}`);
-        process.exit(1); // Exit process if connection fails
+        process.exit(1);
     }
 };
 
-// Define API routes
+// Routes
 app.use("/api/videos", videoRoutes);
 
-// Start the server only after connecting to the database
+// Start server after DB connection
 (async () => {
-    await connectDB(); // Ensure the database connection is established
+    await connectDB();
     const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => {
         console.log(`Server started at http://localhost:${PORT}`);
