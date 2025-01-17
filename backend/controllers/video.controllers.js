@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { Video } from '../models/videos.model.js';
 import { Video, StaticRating, DynamicRating } from '../models/videos.model.js';
 
 export const getVideos = async (req, res) => {
