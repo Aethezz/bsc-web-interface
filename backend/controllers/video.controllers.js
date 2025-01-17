@@ -12,21 +12,15 @@ export const getVideos = async (req, res) => {
 };
 
 export const createVideo = async (req, res) => {
-    const { youtube_link } = req.body;
+    const { video_file, youtube_link } = req.body;
 
-    /*
     if (!video_file) {
         return res.status(400).json({ success: false, message: "Video file is required" });
     }
-    */
 
     try {
-<<<<<<< Updated upstream
-        const video = new Video({ youtube_link });
-=======
         // Create a new video document
         const video = new Video({ video_file, youtube_link });
->>>>>>> Stashed changes
         await video.save();
 
         // Create a corresponding static rating
@@ -49,11 +43,7 @@ export const createVideo = async (req, res) => {
             data: { video, staticRating, dynamicRating },
         });
     } catch (error) {
-<<<<<<< Updated upstream
-        console.error("Error in saving video:", error.message);
-=======
         console.error("Error in saving video and ratings:", error.message);
->>>>>>> Stashed changes
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
