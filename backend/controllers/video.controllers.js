@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Video } from '../models/videos.model.js';
+import { Video, StaticRating, DynamicRating } from '../models/videos.model.js';
 
 export const getVideos = async (req, res) => {
     try {
@@ -21,11 +22,39 @@ export const createVideo = async (req, res) => {
     */
 
     try {
+<<<<<<< Updated upstream
         const video = new Video({ youtube_link });
+=======
+        // Create a new video document
+        const video = new Video({ video_file, youtube_link });
+>>>>>>> Stashed changes
         await video.save();
-        res.status(201).json({ success: true, data: video });
+
+        // Create a corresponding static rating
+        const staticRating = new StaticRating({
+            video_id: video._id,
+            static_rating: 0, // Default static rating, adjust as needed
+        });
+
+        // Create a corresponding dynamic rating
+        const dynamicRating = new DynamicRating({
+            video_id: video._id,
+            dynamic_rating_data: {}, // Default empty structure, adjust as needed
+        });
+
+        // Save both ratings
+        await Promise.all([staticRating.save(), dynamicRating.save()]);
+
+        res.status(201).json({
+            success: true,
+            data: { video, staticRating, dynamicRating },
+        });
     } catch (error) {
+<<<<<<< Updated upstream
         console.error("Error in saving video:", error.message);
+=======
+        console.error("Error in saving video and ratings:", error.message);
+>>>>>>> Stashed changes
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
