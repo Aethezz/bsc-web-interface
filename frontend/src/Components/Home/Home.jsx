@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import './HomePage.css';
 import LinkInput from './LinkInput';
 import { saveVideo } from '../../services/Service.js';
-import {FaHeart, FaSmile, FaSadTear, FaFlushed } from 'react-icons/fa';
+import {FaAngry, FaSmile, FaSadTear, FaFlushed } from 'react-icons/fa';
+import { Link } from "react-router-dom"; // If using React Router
 
 // Consider adding a hover affect to the cars instead of the crazy spin they have 
 
@@ -22,14 +23,13 @@ const Home = ({ theme }) => {
           setLoading(false);
         }
       };
-
-    // JOy, pleased, fear, sad 
+ 
 
     const emotionCards = [
-        { name: 'Joy', icon: <FaSmile />, color: '#ffd700' },
-        { name: 'Sadness', icon: <FaSadTear />, color: '#4169e1' },
+        { name: 'Happy', icon: <FaSmile />, color: '#ffd700' },
+        { name: 'Sad', icon: <FaSadTear />, color: '#4169e1' },
         { name: 'Fear', icon: <FaFlushed />, color: '#BB86FC' },
-        { name: 'Love', icon: <FaHeart />, color: '#ff4444' }
+        { name: 'Anger', icon: <FaAngry />, color: '#ff4444' }
     ];
 
     return (
@@ -66,12 +66,14 @@ const Home = ({ theme }) => {
                                 </span>
                             </div>
                             <h3 className={`emotion-name ${theme}`}>{emotion.name}</h3>
-                            <button className={`see-more ${theme}`}>See More ›</button>
+                            <Link to={`/emotions/${emotion.name}`} className={`see-more ${theme}`}>
+                                See More ›
+                            </Link>
                         </div>
                     ))}
                 </div>
             </div>
-        </div>
+        </div> 
     );
 };
 

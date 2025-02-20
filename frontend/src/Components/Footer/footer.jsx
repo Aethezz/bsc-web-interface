@@ -8,8 +8,8 @@ const Footer = ({ theme }) => {
       <div className="footer-content">
         <div className="footer-section">
           <h2>Contact Us</h2>
-          <p>Email: contact@brainstimuli.com</p>
-          <p>Phone: +1 (416) 456-7890</p>
+          <p>Email: StimuliCuration@gmail.com</p>
+          <p>Phone: +1 (289) 400 3750</p>
         </div>
         <div className="footer-section">
           <h2>Follow Us</h2>

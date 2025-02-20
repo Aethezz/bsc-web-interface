@@ -12,10 +12,6 @@ const VideoAnalysisTester = ({ theme }) => {
         sadness: 0,
         anger: 0,
         fear: 0,
-        surprise: 0,
-        disgust: 0,
-        trust: 0,
-        anticipation: 0
     });
 
     // Mock API call - replace this with our real API call later
@@ -26,10 +22,6 @@ const VideoAnalysisTester = ({ theme }) => {
             sadness: Math.floor(Math.random() * 4) + 1, // 1-5 range for negative emotions
             anger: Math.floor(Math.random() * 3) + 1, // 1-4 range
             fear: Math.floor(Math.random() * 4) + 1, // 1-5 range
-            surprise: Math.floor(Math.random() * 4) + 2, // 2-6 range
-            disgust: Math.floor(Math.random() * 3) + 1, // 1-4 range
-            trust: Math.floor(Math.random() * 4) + 2, // 2-6 range
-            anticipation: Math.floor(Math.random() * 4) + 2 // 2-6 range
         };
     };
 
@@ -84,10 +76,6 @@ const VideoAnalysisTester = ({ theme }) => {
             sadness: '#4169E1',
             anger: '#FF4500',
             fear: '#800080',
-            surprise: '#00CED1',
-            disgust: '#32CD32',
-            trust: '#FFA500',
-            anticipation: '#FF69B4'
         };
         return colors[emotion] || '#666';
     };
