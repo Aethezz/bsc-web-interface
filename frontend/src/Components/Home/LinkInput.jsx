@@ -10,7 +10,7 @@ const LinkInput = ({ theme, onSubmit }) => {
         e.preventDefault();
         if (isValidYouTubeLink(link)) {
             onSubmit(link);
-            navigate('/videos');
+            navigate('/videos', { state: { youtubeLink: link } }); // Pass the link via state
         } else {
             alert('Please enter a valid YouTube link.');
         }

@@ -1,14 +1,51 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios"; // Import axios for HTTP requests
+import { getVideos } from "../../api/videos"; // Import your backend API functions
 
 const Fear = () => {
-    console.log("Fear page is being rendered"); // Debugging log
+    const [videos, setVideos] = useState([]);
 
-    // Dummy YouTube videos related to fear
-    const videos = [
-        { id: 1, title: "Understanding Fear", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg" },
-        { id: 2, title: "Overcoming Fear", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg" },
-        { id: 3, title: "Managing Fear in Stressful Situations", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg" }
-    ];
+    // Fetch videos from the backend and filter by dominant emotion
+    useEffect(() => {
+        const fetchVideos = async () => {
+            try {
+                // Fetch all videos from the backend
+                const fetchedVideos = await getVideos();
+
+                // Filter videos where the dominant emotion is "joy"
+                const filteredVideos = await Promise.all(
+                    fetchedVideos
+                        .filter((video) => video.main_emotion === "fear")
+                        .map(async (video, index) => {
+                            const videoId = video.youtube_link.split("v=")[1]; // Extract the YouTube video ID
+                            if (!videoId) return null; // Skip invalid links
+
+                            // Fetch video details from YouTube oEmbed endpoint
+                            const oEmbedResponse = await axios.get(
+                                `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+                            );
+
+                            const videoDetails = oEmbedResponse.data;
+                            return {
+                                id: index + 1, // Assign a sequential ID
+                                title: videoDetails.title, // Extract the title
+                                url: video.youtube_link,
+                                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+                            };
+                        })
+                );
+
+                // Filter out any null values (invalid videos)
+                const validVideos = filteredVideos.filter((video) => video !== null);
+                setVideos(validVideos); // Update the state with valid videos
+            } catch (error) {
+                console.error("Error fetching videos:", error.message);
+                setVideos([]); // Reset videos state in case of error
+            }
+        };
+
+        fetchVideos();
+    }, []);
 
     return (
         <div className="emotion-page">
@@ -17,14 +54,18 @@ const Fear = () => {
 
             {/* Video List */}
             <div className="video-list">
-                {videos.map((video) => (
-                    <div key={video.id} className="video-card">
-                        <a href={video.url} target="_blank" rel="noopener noreferrer">
-                            <img src={video.thumbnail} alt={video.title} className="video-thumbnail" />
-                            <h3>{video.title}</h3>
-                        </a>
-                    </div>
-                ))}
+                {videos.length > 0 ? (
+                    videos.map((video) => (
+                        <div key={video.id} className="video-card">
+                            <a href={video.url} target="_blank" rel="noopener noreferrer">
+                                <img src={video.thumbnail} alt={video.title} className="video-thumbnail" />
+                                <h3>{video.title}</h3>
+                            </a>
+                        </div>
+                    ))
+                ) : (
+                    <p>No videos found for this emotion.</p>
+                )}
             </div>
 
             {/* Styles */}
@@ -32,6 +73,7 @@ const Fear = () => {
                 .emotion-page {
                     text-align: center;
                     padding: 20px;
+                    background-color: #fff8e1; /* Light Yellow */
                 }
                 .video-list {
                     display: flex;
@@ -42,7 +84,7 @@ const Fear = () => {
                 }
                 .video-card {
                     width: 250px;
-                    background: #ffeb3b;
+                    background: #ffeb3b; /* Bright Yellow */
                     padding: 10px;
                     border-radius: 8px;
                     text-align: center;

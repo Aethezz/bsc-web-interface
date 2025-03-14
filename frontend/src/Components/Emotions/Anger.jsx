@@ -1,19 +1,51 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios"; // Import axios for HTTP requests
+import { getVideos } from "../../api/videos"; // Import your backend API functions
 
 const Anger = () => {
-    // Anger-related YouTube videos
-    const videos = [
-        { id: 1, title: "Why We Get Angry", url: "https://www.youtube.com/watch?v=moQ1aBW4TSo", thumbnail: "https://img.youtube.com/vi/moQ1aBW4TSo/0.jpg" },
-        { id: 2, title: "The Science of Anger", url: "https://www.youtube.com/watch?v=boGz5eU8M4g", thumbnail: "https://img.youtube.com/vi/boGz5eU8M4g/0.jpg" },
-        { id: 3, title: "How to Control Anger Before It Controls You", url: "https://www.youtube.com/watch?v=5IR0nJj0C4k", thumbnail: "https://img.youtube.com/vi/5IR0nJj0C4k/0.jpg" },
-        { id: 4, title: "Healthy Ways to Express Anger", url: "https://www.youtube.com/watch?v=p-JW_0x42i8", thumbnail: "https://img.youtube.com/vi/p-JW_0x42i8/0.jpg" },
-        { id: 5, title: "Understanding and Managing Anger", url: "https://www.youtube.com/watch?v=4-Ic9bS-LGM", thumbnail: "https://img.youtube.com/vi/4-Ic9bS-LGM/0.jpg" },
-        { id: 6, title: "What Happens to Your Brain When You Get Angry?", url: "https://www.youtube.com/watch?v=biONiclkbXg", thumbnail: "https://img.youtube.com/vi/biONiclkbXg/0.jpg" },
-        { id: 7, title: "Dealing with Anger in a Healthy Way", url: "https://www.youtube.com/watch?v=MF70V2LWl-0", thumbnail: "https://img.youtube.com/vi/MF70V2LWl-0/0.jpg" },
-        { id: 8, title: "How to Stop Overreacting and Control Anger", url: "https://www.youtube.com/watch?v=CdF4Oz9R1jo", thumbnail: "https://img.youtube.com/vi/CdF4Oz9R1jo/0.jpg" },
-        { id: 9, title: "The Psychology of Anger: How to Handle It", url: "https://www.youtube.com/watch?v=DFzLpyW-FzU", thumbnail: "https://img.youtube.com/vi/DFzLpyW-FzU/0.jpg" },
-        { id: 10, title: "How to Stay Calm in Stressful Situations", url: "https://www.youtube.com/watch?v=lPZ9aVzbzM0", thumbnail: "https://img.youtube.com/vi/lPZ9aVzbzM0/0.jpg" }
-    ];
+    const [videos, setVideos] = useState([]);
+
+    // Fetch videos from the backend and filter by dominant emotion
+    useEffect(() => {
+        const fetchVideos = async () => {
+            try {
+                // Fetch all videos from the backend
+                const fetchedVideos = await getVideos();
+
+                // Filter videos where the dominant emotion is "joy"
+                const filteredVideos = await Promise.all(
+                    fetchedVideos
+                        .filter((video) => video.main_emotion === "anger")
+                        .map(async (video, index) => {
+                            const videoId = video.youtube_link.split("v=")[1]; // Extract the YouTube video ID
+                            if (!videoId) return null; // Skip invalid links
+
+                            // Fetch video details from YouTube oEmbed endpoint
+                            const oEmbedResponse = await axios.get(
+                                `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+                            );
+
+                            const videoDetails = oEmbedResponse.data;
+                            return {
+                                id: index + 1, // Assign a sequential ID
+                                title: videoDetails.title, // Extract the title
+                                url: video.youtube_link,
+                                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+                            };
+                        })
+                );
+
+                // Filter out any null values (invalid videos)
+                const validVideos = filteredVideos.filter((video) => video !== null);
+                setVideos(validVideos); // Update the state with valid videos
+            } catch (error) {
+                console.error("Error fetching videos:", error.message);
+                setVideos([]); // Reset videos state in case of error
+            }
+        };
+
+        fetchVideos();
+    }, []);
 
     return (
         <div className="emotion-page">
@@ -22,14 +54,18 @@ const Anger = () => {
 
             {/* Video List */}
             <div className="video-list">
-                {videos.map((video) => (
-                    <div key={video.id} className="video-card">
-                        <a href={video.url} target="_blank" rel="noopener noreferrer">
-                            <img src={video.thumbnail} alt={video.title} className="video-thumbnail" />
-                            <h3>{video.title}</h3>
-                        </a>
-                    </div>
-                ))}
+                {videos.length > 0 ? (
+                    videos.map((video) => (
+                        <div key={video.id} className="video-card">
+                            <a href={video.url} target="_blank" rel="noopener noreferrer">
+                                <img src={video.thumbnail} alt={video.title} className="video-thumbnail" />
+                                <h3>{video.title}</h3>
+                            </a>
+                        </div>
+                    ))
+                ) : (
+                    <p>No videos found for this emotion.</p>
+                )}
             </div>
 
             {/* Styles */}
@@ -37,7 +73,7 @@ const Anger = () => {
                 .emotion-page {
                     text-align: center;
                     padding: 20px;
-                    background-color: #ffebee; /* Light red for anger theme */
+                    background-color: #fff8e1; /* Light Yellow */
                 }
                 .video-list {
                     display: flex;
@@ -48,7 +84,7 @@ const Anger = () => {
                 }
                 .video-card {
                     width: 250px;
-                    background: #f44336; /* Deep red */
+                    background: #ffeb3b; /* Bright Yellow */
                     padding: 10px;
                     border-radius: 8px;
                     text-align: center;
@@ -65,7 +101,7 @@ const Anger = () => {
                 .video-card h3 {
                     font-size: 16px;
                     margin-top: 8px;
-                    color: #fff; /* White text for contrast */
+                    color: #333;
                 }
             `}</style>
         </div>

@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FaPlayCircle, FaPause } from 'react-icons/fa';
 import "./Videos.css"
-
+import {getVideos, createVideo, updateVideo, deleteVideo} from "../../api/videos"
+import { useLocation } from 'react-router-dom';
 const VideoAnalysisTester = ({ theme }) => {
+    const location = useLocation(); // Access the location object
+    const youtubeLink = location.state?.youtubeLink; // Extract the YouTube link from state
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [videos, setVideos] = useState([]);
     const [progress, setProgress] = useState(0);
     const [hasStarted, setHasStarted] = useState(false);
     const [analysisComplete, setAnalysisComplete] = useState(false);
@@ -13,6 +17,30 @@ const VideoAnalysisTester = ({ theme }) => {
         anger: 0,
         fear: 0,
     });
+    useEffect(() => {
+        if (youtubeLink) {
+            console.log("Received YouTube link:", youtubeLink);
+            // You can now use the `youtubeLink` for analysis or storage
+        }
+    }, [youtubeLink]);
+    useEffect(() => {
+        const fetchStoredVideos = async () => {
+            try {
+                const fetchedVideos = await getVideos();
+                setVideos(fetchedVideos);
+            } catch (error) {
+                console.error("Error fetching videos:", error.message);
+            }
+        };
+    
+        fetchStoredVideos();
+    }, []);
+
+    // Function to check if the video already exists in the database
+    const checkIfVideoExists = async (link) => {
+        const existingVideo = videos.find(video => video.youtube_link === link);
+        return existingVideo;
+    };
 
     // Mock API call - replace this with our real API call later
     const generateMockAnalysis = () => {
@@ -70,6 +98,24 @@ const VideoAnalysisTester = ({ theme }) => {
         }
     };
 
+    const StoreVideo = async (videoLink, emotionData) => {
+        const dominant = Object.entries(emotionData).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+        console.log(dominant);
+        try {
+            const newVideo = await createVideo({
+                youtube_link: videoLink,
+                emotion_data: emotionData, // Include emotion data in the request
+                main_emotion: dominant
+            });
+            console.log("Video stored successfully:", newVideo);
+            
+            return newVideo;
+        } catch (error) {
+            console.error("Error storing video:", error.message);
+            alert("Failed to store video. Please try again.");
+        }
+    };
+
     const getEmotionColor = (emotion) => {
         const colors = {
             joy: '#FFD700',
@@ -80,30 +126,50 @@ const VideoAnalysisTester = ({ theme }) => {
         return colors[emotion] || '#666';
     };
 
-    const handleStartAnalysis = () => {
-        setHasStarted(true);
-        setIsAnalyzing(true);
-        setProgress(0);
-        setAnalysisComplete(false);
-
-         // Simulate analysis progress
-         const interval = setInterval(() => {
-            setProgress((prevProgress) => {
-                if (prevProgress >= 100) {
-                    clearInterval(interval);
-                    setIsAnalyzing(false);
-                    setAnalysisComplete(true);
-                    setEmotionData(generateMockAnalysis());
-                    return 100;
-                }
-                return prevProgress + 50;
-            });
-        }, 500);
-    };
+    const handleStartAnalysis = useCallback(async () => {
+        let existingVideo = await checkIfVideoExists(youtubeLink);
+        if (existingVideo) {
+            // Video exists in the database, use stored emotion data
+            console.log("Video already exists in the database:", existingVideo);
+            const emotionResults = existingVideo.emotion_data
+            console.log(emotionResults)
+            setEmotionData(emotionResults);
+            setAnalysisComplete(true);
+            setHasStarted(true);
+            setProgress(100)
+            alert("Video already analyzed. Displaying stored results.");
+        } else {
+            // Video does not exist, perform analysis
+            console.log("Video not found in the database. Starting analysis...");
+            setHasStarted(true);
+            setIsAnalyzing(true);
+            setProgress(0);
+            setAnalysisComplete(false);
+            const emotionResults = generateMockAnalysis()
+            // Simulate analysis progress
+            const interval = setInterval(() => {
+                setProgress((prevProgress) => {
+                    if (prevProgress >= 100) {
+                        clearInterval(interval);
+                        setIsAnalyzing(false);
+                        setAnalysisComplete(true);
+                        setEmotionData(emotionResults);
+                        console.log(emotionResults)
+                        return 100;
+                    }
+                    return prevProgress + 50;
+                });
+            }, 500);
+            StoreVideo(youtubeLink, emotionResults);
+        }
+        existingVideo = await checkIfVideoExists(youtubeLink);
+    }, [youtubeLink, videos]);
 
     const getDominantEmotion = () => {
         return Object.entries(emotionData).reduce((a, b) => a[1] > b[1] ? a : b)[0];
     };
+
+    
 
     // Make the entire  div of anaylsis results disapaer
     const renderEmotionBars = () => {
@@ -134,6 +200,7 @@ const VideoAnalysisTester = ({ theme }) => {
             <div className="analysis-container">
                 <h2>Video Emotion Analysis</h2>
                 
+                {/* Progress Section */}
                 <div className="progress-section">
                     <div className="progress-bar">
                         <div 
@@ -148,25 +215,26 @@ const VideoAnalysisTester = ({ theme }) => {
                     )}
                 </div>
                 
-                {/* Make it so that this div appears only when you have put inside data because scrolling is a pain*/}
+                {/* Analysis Results */}
                 {hasStarted && ( 
-                <div className={`analysis-results ${analysisComplete ? 'visible' : ''}`}>
-                    <div className="sentiment-box">
-                        <h3>Primary Emotion</h3>
-                        <div className="dominant-emotion" style={{ 
-                            backgroundColor: getEmotionColor(getDominantEmotion())
-                        }}>
-                            {getDominantEmotion().toUpperCase()}
+                    <div className={`analysis-results ${analysisComplete ? 'visible' : ''}`}>
+                        <div className="sentiment-box">
+                            <h3>Primary Emotion</h3>
+                            <div className="dominant-emotion" style={{ 
+                                backgroundColor: getEmotionColor(getDominantEmotion())
+                            }}>
+                                {getDominantEmotion().toUpperCase()}
+                            </div>
+                        </div>
+    
+                        <div className="emotion-stats">
+                            <h3>Emotion Breakdown</h3>
+                            {renderEmotionBars()}
                         </div>
                     </div>
-
-                    <div className="emotion-stats">
-                        <h3>Emotion Breakdown</h3>
-                        {renderEmotionBars()}
-                    </div>
-                </div>
                 )}
-
+    
+                {/* Start Analysis Button */}
                 <button 
                     className="control-button"
                     onClick={handleStartAnalysis}
@@ -175,6 +243,19 @@ const VideoAnalysisTester = ({ theme }) => {
                     {isAnalyzing ? <FaPause /> : <FaPlayCircle />}
                     {isAnalyzing ? 'Analyzing...' : 'Start Analysis'}
                 </button>
+    
+                {/* Display Stored Videos */}
+                <h3>Stored Videos</h3>
+                <ul>
+                    {videos.map((video) => (
+                        <li key={video._id}>
+                            <a href={video.youtube_link} target="_blank" rel="noopener noreferrer">
+                                {video.youtube_link}
+                            </a>
+                            <p>Emotion Data: {JSON.stringify(video.emotion_data)}</p>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     );

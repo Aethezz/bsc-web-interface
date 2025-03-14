@@ -14,15 +14,22 @@ const dynamicRatingSchema = new mongoose.Schema({
 
 // Video Schema
 const videoSchema = new mongoose.Schema({
-    youtube_link: { 
-        type: String, 
-        required: true,
-        unique: true 
+    youtube_link: {
+        type: String,
+        required: true, // Ensure YouTube link is mandatory
+    },
+    emotion_data: {
+        type: Object, // Store emotion data as an object
+        required: true, // Ensure emotion data is mandatory
+    },
+    main_emotion: {
+        type: String,
+        default: "fear",
     },
     createdAt: {
         type: Date,
-        default: Date.now
-    }
+        default: Date.now,
+    },
 });
 
 export const Video = mongoose.model('Videos', videoSchema);
