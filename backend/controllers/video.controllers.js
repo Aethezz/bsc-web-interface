@@ -114,6 +114,7 @@ export const deleteVideo = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
 export const clearDatabase = async (req, res) => {
     try {
         // Delete all documents from each collection
