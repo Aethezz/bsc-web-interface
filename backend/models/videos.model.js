@@ -26,6 +26,18 @@ const videoSchema = new mongoose.Schema({
         type: String,
         default: "fear",
     },
+    video_title: {
+        type: String,
+        default: "Unknown Video",
+    },
+    comments_used: {
+        type: [String], // Array of comment strings
+        default: [],
+    },
+    total_comments_analyzed: {
+        type: Number,
+        default: 0,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

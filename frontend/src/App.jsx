@@ -5,6 +5,7 @@ import Home from './Components/Home/Home.jsx';
 import About from './Components/About/About.jsx';
 import Videos from './Components/Videos/Videos.jsx';
 import Contact from './Components/Contact/Contact.jsx';
+import Contribute from './Components/Contribute/Contribute.jsx';
 import Footer from './Components/Footer/Footer.jsx';
 import Anger from "./Components/Emotions/Anger";  // Import each emotion page
 import Happy from "./Components/Emotions/Happy"; // Example, repeat for all
@@ -38,6 +39,7 @@ const App = () => {
                         <Route path="/about" element={<About theme={theme} />} />
                         <Route path="/videos" element={<Videos theme={theme} />} />
                         <Route path="/contact" element={<Contact theme={theme} />} />
+                        <Route path="/contribute" element={<Contribute theme={theme} />} />
                         <Route path="/emotions/anger" element={<Anger />} />
                         <Route path="/emotions/happy" element={<Happy />} />
                         <Route path="/emotions/sad" element={<Sad />} />

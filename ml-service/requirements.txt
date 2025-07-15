@@ -1,0 +1,18 @@
+flask==2.3.3
+flask-cors==4.0.0
+opencv-python==4.8.1.78
+numpy==1.24.3
+tensorflow==2.13.0
+# or torch==2.0.1 if using PyTorch
+pillow==10.0.0
+yt-dlp==2023.7.6
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Your model dependencies
+google-api-python-client
+pandas
+scikit-learn
+imbalanced-learn
+xgboost
+joblib
