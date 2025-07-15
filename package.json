@@ -12,7 +12,12 @@
     "frontend": "cd frontend && npm run dev",
     "ml-service": "cd ml-service && python app.py"
   },
-  "keywords": ["youtube", "emotion-analysis", "ml", "web-interface"],
+  "keywords": [
+    "youtube",
+    "emotion-analysis",
+    "ml",
+    "web-interface"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {

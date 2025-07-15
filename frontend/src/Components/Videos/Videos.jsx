@@ -123,22 +123,33 @@ const VideoAnalysisTester = ({ theme }) => {
 
         const predictedEmotion = response.data.dominant_emotion;
         console.log(`[FRONTEND] 🎯 Predicted emotion: ${predictedEmotion}`);
+        console.log(`[FRONTEND] 🏷️ Sentiment label: ${response.data.sentiment_label}`);
+        console.log(`[FRONTEND] 📦 Full response data:`, response.data);
 
         setAnalysisStatus(`Analysis complete! Predicted emotion: ${predictedEmotion.toUpperCase()} (from top ${response.data.total_comments_analyzed} comments)`);
 
-        setSentimentResults({
-          ...response.data.detailed_results?.sentiment_analysis,
+        const newSentimentResults = {
+          status: "completed",
+          method: "youtube_comments_ml",
           emotions: response.data.emotions,
           emotion_comments: response.data.emotion_comments,
           dominant_emotion: response.data.dominant_emotion,
           sentiment_label: response.data.sentiment_label,
-          status: "completed"
-        });
+          video_title: response.data.video_title,
+          total_comments_analyzed: response.data.total_comments_analyzed,
+          processing_time_seconds: response.data.detailed_results?.sentiment_analysis?.processing_time_seconds,
+          // Include any additional data from detailed_results if it exists
+          ...(response.data.detailed_results?.sentiment_analysis || {})
+        };
+
+        console.log(`[FRONTEND] 🎯 Setting sentiment results:`, newSentimentResults);
+        setSentimentResults(newSentimentResults);
 
         console.log(`[FRONTEND] 📝 Sentiment results after setting:`, {
           emotions: response.data.emotions,
           emotion_comments: response.data.emotion_comments,
-          dominant_emotion: response.data.dominant_emotion
+          dominant_emotion: response.data.dominant_emotion,
+          sentiment_label: response.data.sentiment_label
         });
         setEmotionResults(null); // Not using emotion recognition for ML analysis
         setCombinedResults(null); // Not using combined analysis for ML analysis
@@ -162,6 +173,13 @@ const VideoAnalysisTester = ({ theme }) => {
             const totalComments = analysisResults.total_comments_analyzed || 0;
             const processingTime = analysisResults.processing_time_seconds || 0;
 
+            // Get sentiment label from the saved state or response data
+            const sentimentLabel = newSentimentResults.sentiment_label || response.data.sentiment_label || 'unknown';
+
+            console.log(`[FRONTEND] 🏷️ Sentiment label for popup:`, sentimentLabel);
+            console.log(`[FRONTEND] 🔍 newSentimentResults:`, newSentimentResults);
+            console.log(`[FRONTEND] 🔍 response.data:`, response.data);
+
             const modalContent = `
               <div style="
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -177,8 +195,11 @@ const VideoAnalysisTester = ({ theme }) => {
               ">
                 <div style="text-align: center; margin-bottom: 25px;">
                   <h2 style="margin: 0; font-size: 24px; font-weight: 600;">
-                    🎯 YouTube Sentiment Analysis Results
+                    🤖 ML Pipeline Analysis Results
                   </h2>
+                  <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.8;">
+                    Two-Model Sequential Analysis
+                  </p>
                   <div style="height: 3px; background: rgba(255,255,255,0.3); margin: 15px auto; width: 50px; border-radius: 2px;"></div>
                 </div>
                 
@@ -187,7 +208,15 @@ const VideoAnalysisTester = ({ theme }) => {
                     📹 Video Information
                   </h3>
                   <p style="margin: 8px 0; font-size: 16px;"><strong>Title:</strong> ${videoTitle}</p>
-                  <p style="margin: 8px 0; font-size: 16px;"><strong>🎭 Predicted Emotion:</strong> 
+                  <p style="margin: 8px 0; font-size: 16px;"><strong>💬 Comments Analyzed:</strong> ${totalComments}</p>
+                  ${processingTime > 0 ? `<p style="margin: 8px 0; font-size: 16px;"><strong>⏱️ Processing Time:</strong> ${processingTime}s</p>` : ''}
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                  <h3 style="margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center;">
+                    🤖 ML Models Results
+                  </h3>
+                  <p style="margin: 8px 0; font-size: 16px;"><strong>🥇 XGBoost Model - Dominant Emotion:</strong> 
                     <span style="
                       background: rgba(255,255,255,0.2); 
                       padding: 4px 12px; 
@@ -196,9 +225,19 @@ const VideoAnalysisTester = ({ theme }) => {
                       text-transform: uppercase;
                       letter-spacing: 1px;
                     ">${predictedEmotion}</span>
+                    <br><small style="opacity: 0.7; margin-left: 20px;">Aggregated from 30 individual comment predictions</small>
                   </p>
-                  <p style="margin: 8px 0; font-size: 16px;"><strong>💬 Comments Analyzed:</strong> ${totalComments}</p>
-                  ${processingTime > 0 ? `<p style="margin: 8px 0; font-size: 16px;"><strong>⏱️ Processing Time:</strong> ${processingTime}s</p>` : ''}
+                  <p style="margin: 8px 0; font-size: 16px;"><strong>🥈 Random Forest Model - Sentiment Label:</strong> 
+                    <span style="
+                      background: rgba(76, 175, 80, 0.8); 
+                      padding: 4px 12px; 
+                      border-radius: 20px; 
+                      font-weight: 600;
+                      text-transform: uppercase;
+                      letter-spacing: 1px;
+                    ">${sentimentLabel}</span>
+                    <br><small style="opacity: 0.7; margin-left: 20px;">Overall sentiment classification</small>
+                  </p>
                 </div>
                 
                 ${commentsUsed.length > 0 ? `
@@ -690,16 +729,54 @@ const VideoAnalysisTester = ({ theme }) => {
 
             {sentimentResults && (
               <div className="analysis-section">
-                <h4>🗨️ Sentiment Analysis (Your Trained Model)</h4>
+                <h4>🤖 ML Analysis Results (Two-Model Pipeline)</h4>
                 <div className="analysis-info">
                   <p><strong>Status:</strong> {sentimentResults.status}</p>
-                  <p><strong>Method:</strong> YouTube Comments Analysis</p>
-                  <p><strong>Dominant Emotion:</strong> {sentimentResults.dominant_emotion}</p>
-                  {sentimentResults.sentiment_label && (
-                    <p><strong>Sentiment Label:</strong> {sentimentResults.sentiment_label}</p>
-                  )}
+                  <p><strong>Method:</strong> YouTube Comments Analysis (Top 30 Most-Liked)</p>
+                  <p><strong>🥇 XGBoost Model - Dominant Emotion:</strong>
+                    <span style={{
+                      backgroundColor: getEmotionColor(sentimentResults.dominant_emotion),
+                      color: 'white',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      marginLeft: '8px',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      fontSize: '0.9em'
+                    }}>
+                      {sentimentResults.dominant_emotion || 'Not available'}
+                    </span>
+                    <small style={{ marginLeft: '8px', color: '#666', fontSize: '0.8em' }}>
+                      (Aggregated from 30 comment predictions)
+                    </small>
+                  </p>
+                  <p><strong>🥈 Random Forest Model - Sentiment Label:</strong>
+                    <span style={{
+                      backgroundColor: '#4CAF50',
+                      color: 'white',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      marginLeft: '8px',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      fontSize: '0.9em'
+                    }}>
+                      {sentimentResults.sentiment_label || 'Not available'}
+                    </span>
+                    <small style={{ marginLeft: '8px', color: '#666', fontSize: '0.8em' }}>
+                      (Overall sentiment classification)
+                    </small>
+                  </p>
+                  {/* Debug info - remove once confirmed working */}
+                  <details style={{ fontSize: '12px', color: '#666', marginTop: '10px' }}>
+                    <summary>Debug Info (Click to expand)</summary>
+                    <pre style={{ fontSize: '10px', maxHeight: '200px', overflow: 'auto' }}>
+                      {JSON.stringify(sentimentResults, null, 2)}
+                    </pre>
+                  </details>
                 </div>
                 <div className="emotion-breakdown">
+                  <h5>📊 XGBoost Model - Emotion Distribution (from 30 comments)</h5>
                   {Object.entries(sentimentResults.emotions || {}).map(([emotion, value]) => (
                     <div key={emotion} className="emotion-bar">
                       <span className="emotion-name">{emotion}:</span>
@@ -716,7 +793,7 @@ const VideoAnalysisTester = ({ theme }) => {
 
                 {sentimentResults.emotion_comments && (
                   <div className="comments-by-emotion">
-                    <h5>📝 Comments by Emotion (Top 30 Most-Liked)</h5>
+                    <h5>📝 XGBoost Predictions by Emotion (Top 30 Most-Liked Comments)</h5>
                     {Object.entries(sentimentResults.emotion_comments).map(([emotion, comments]) => (
                       comments.length > 0 && (
                         <div key={emotion} className="emotion-comments-section">
