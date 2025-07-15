@@ -56,7 +56,7 @@ def analyze_video():
         
         results = {}
         
-        # SECTION 1: Sentiment Analysis 
+        # SECTION 1: Sentiment Analysis (Your Trained Model) 
         if analysis_method in ['sentiment', 'both']:
             print("[ML SERVICE] Running sentiment analysis using preloaded models...")
             import time

@@ -1,13 +1,18 @@
 {
   "name": "bsc-web-interface",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "BSC Web Interface with ML-powered YouTube video analysis",
+  "main": "backend/server.js",
   "type": "module",
   "scripts": {
-    "dev": "node backend/server.js"
+    "dev": "nodemon backend/server.js",
+    "start": "node backend/server.js",
+    "install-all": "npm install && cd frontend && npm install",
+    "setup": "npm run install-all && cd ml-service && python setup.py",
+    "frontend": "cd frontend && npm run dev",
+    "ml-service": "cd ml-service && python app.py"
   },
-  "keywords": [],
+  "keywords": ["youtube", "emotion-analysis", "ml", "web-interface"],
   "author": "",
   "license": "ISC",
   "dependencies": {
