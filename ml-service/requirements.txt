@@ -1,14 +1,10 @@
-flask==2.3.3
-flask-cors==4.0.0
-opencv-python==4.8.1.78
-numpy==1.24.3
-tensorflow==2.13.0
-pillow==10.0.0
-yt-dlp==2023.7.6
+flask==3.0.0
+flask-cors==4.0.1
+numpy==1.26.4
 requests==2.31.0
 python-dotenv==1.0.0
 
-# ML dependencies with specific versions
+# ML dependencies with Python 3.13 compatible versions
 google-api-python-client==2.176.0
 pandas==2.2.3
 scikit-learn==1.5.2
@@ -16,7 +12,9 @@ imbalanced-learn==0.12.4
 xgboost==2.1.4
 joblib==1.4.2
 
-# Additional dependencies found in environment
-matplotlib==3.9.0
+# Additional dependencies
+matplotlib==3.9.2
 seaborn==0.13.2
 gunicorn==21.2.0
+
+
