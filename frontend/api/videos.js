@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5001/api/videos';
+// Use production URL when deployed, localhost for development
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://bsc-backend-f2ou.onrender.com'  // Your actual Render backend URL
+  : 'http://localhost:5003';
+
+const API_URL = `${API_BASE_URL}/api/videos`; // Adjust this URL if needed
 
 // Create a new video
 export const createVideo = async (videoData) => {
