@@ -1,7 +1,11 @@
-// srexport consexport const export const analyzeVideoML = async (youtube_url, method = 'sentiment') => {eateVideo = async (video) => {fetchVideos = async () => {api/videos.js
 import axios from "axios";
 
-const API_URL = "http://localhost:5003/api/videos"; // Adjust this URL if needed
+// Use production URL when deployed, localhost for development
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+    ? 'https://bsc-backend-f2ou.onrender.com'  // Your actual Render backend URL
+    : 'http://localhost:5003';
+
+const API_URL = `${API_BASE_URL}/api/videos`; // Adjust this URL if needed
 
 // Fetch all videos
 export const getVideos = async () => {

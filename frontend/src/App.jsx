@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Navbar from './Components/Navbar/navbar.jsx';
+import Navbar from './Components/Navbar/Navbar.jsx';
 import Home from './Components/Home/Home.jsx';
 import About from './Components/About/About.jsx';
 import Videos from './Components/Videos/Videos.jsx';
 import Contact from './Components/Contact/Contact.jsx';
 import Contribute from './Components/Contribute/Contribute.jsx';
-import Footer from './Components/Footer/Footer.jsx';
+import Footer from './Components/Footer/footer.jsx';
 import Happy from "./Components/Emotions/Happy"; // Example, repeat for all
 import Sad from "./Components/Emotions/Sad";
 import Fear from "./Components/Emotions/Fear";

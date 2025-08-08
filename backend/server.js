@@ -16,7 +16,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: [
+        process.env.FRONTEND_URL || 'http://localhost:5173',
+        'http://localhost:5173',  // Keep localhost for development
+        'https://bscweb-r4z10wzvx-aethezzs-projects.vercel.app'  // Your production URL
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true
 }));
