@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getVideos } from "../../api/videos"; // Import your backend API functions
 
-const Fear = () => {
+const Neutral = () => {
     const [videos, setVideos] = useState([]);
 
     // Fetch videos from the backend and filter by dominant emotion
@@ -11,9 +11,9 @@ const Fear = () => {
                 // Fetch all videos from the backend
                 const fetchedVideos = await getVideos();
 
-                // Filter videos where the dominant emotion is "fear"
+                // Filter videos where the dominant emotion is "neutral"
                 const filteredVideos = fetchedVideos
-                    .filter((video) => video.main_emotion === "fear")
+                    .filter((video) => video.main_emotion === "neutral")
                     .map((video, index) => {
                         // Extract video ID more reliably
                         let videoId = null;
@@ -48,8 +48,8 @@ const Fear = () => {
 
     return (
         <div className="emotion-page">
-            <h1>Fear</h1>
-            <p>This page contains details about fear.</p>
+            <h1>Neutral</h1>
+            <p>This page contains videos with balanced or neutral emotional responses.</p>
 
             {/* Video List */}
             <div className="video-list">
@@ -84,7 +84,7 @@ const Fear = () => {
                 .emotion-page {
                     text-align: center;
                     padding: 20px;
-                    background-color: #fff8e1; /* Light Yellow */
+                    background-color: #f5f5f5; /* Light Gray */
                 }
                 .video-list {
                     display: flex;
@@ -95,7 +95,7 @@ const Fear = () => {
                 }
                 .video-card {
                     width: 250px;
-                    background: #ffeb3b; /* Bright Yellow */
+                    background: #808080; /* Gray */
                     padding: 10px;
                     border-radius: 8px;
                     text-align: center;
@@ -112,11 +112,11 @@ const Fear = () => {
                 .video-card h3 {
                     font-size: 16px;
                     margin-top: 8px;
-                    color: #333;
+                    color: #fff;
                 }
             `}</style>
         </div>
     );
 };
 
-export default Fear;
+export default Neutral;

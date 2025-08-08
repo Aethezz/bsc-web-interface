@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import './HomePage.css';
 import LinkInput from './LinkInput';
 import { saveVideo } from '../../services/Service.js';
-import {FaAngry, FaSmile, FaSadTear, FaFlushed } from 'react-icons/fa';
+import { FaSmile, FaSadTear, FaFlushed, FaLaugh, FaMeh } from 'react-icons/fa';
 import { Link } from "react-router-dom"; // If using React Router
 
 // Consider adding a hover affect to the cars instead of the crazy spin they have 
@@ -14,22 +14,23 @@ const Home = ({ theme }) => {
 
     const handleLinkSubmit = async (link) => {
         try {
-          setLoading(true);
-          await saveVideo(link);
-          console.log('Video link saved successfully');
+            setLoading(true);
+            await saveVideo(link);
+            console.log('Video link saved successfully');
         } catch (error) {
-          console.error('Error saving video:', error);
+            console.error('Error saving video:', error);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
- 
+    };
+
 
     const emotionCards = [
-        { name: 'Happy', icon: <FaSmile />, color: '#ffd700' },
-        { name: 'Sad', icon: <FaSadTear />, color: '#4169e1' },
-        { name: 'Fear', icon: <FaFlushed />, color: '#BB86FC' },
-        { name: 'Anger', icon: <FaAngry />, color: '#ff4444' }
+        { name: 'Neutral', icon: <FaMeh />, color: '#808080' },
+        { name: 'Happy', icon: <FaSmile />, color: '#FFD700' },
+        { name: 'Funny', icon: <FaLaugh />, color: '#FFA500' },
+        { name: 'Fear', icon: <FaFlushed />, color: '#800080' },
+        { name: 'Sad', icon: <FaSadTear />, color: '#4169E1' }
     ];
 
     return (
@@ -55,8 +56,8 @@ const Home = ({ theme }) => {
 
             {/* Emotion Cards Section */}
             <div className="emotions-section">
-                <h2>Featured emotions</h2>
-                <p>We would put them down as icons here</p>
+                <h2>Supported Sentiment Emotions</h2>
+                <p>Our ML model analyzes YouTube comments to detect these 5 core emotions</p>
                 <div className="emotion-cards">
                     {emotionCards.map((emotion) => (
                         <div key={emotion.name} className={`emotion-card ${theme}`}>
@@ -73,7 +74,7 @@ const Home = ({ theme }) => {
                     ))}
                 </div>
             </div>
-        </div> 
+        </div>
     );
 };
 

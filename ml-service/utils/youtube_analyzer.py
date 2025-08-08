@@ -277,27 +277,25 @@ class YouTubeCommentAnalyzer:
     
     def _convert_to_emotions(self, sentiment_counts: Counter, total_comments: int) -> Dict[str, int]:
         """
-        Convert sentiment counts to emotion percentages
+        Convert sentiment counts to emotion percentages (5 ML emotions only)
         
         Args:
             sentiment_counts: Counter of sentiment predictions
             total_comments: Total number of comments analyzed
             
         Returns:
-            Dictionary with emotion percentages
+            Dictionary with emotion percentages for 5 ML emotions
         """
         if total_comments == 0:
             return self._get_default_emotions()
         
-        # Map sentiments to emotions
+        # Map sentiments to the 5 ML emotions only
         emotion_counts = {
-            "anger": 0,
-            "disgust": 0,
-            "fear": sentiment_counts.get(3, 0),  # fear
-            "happy": sentiment_counts.get(1, 0) + sentiment_counts.get(2, 0),  # happy + funny
-            "sad": sentiment_counts.get(4, 0),  # sad
-            "surprise": 0,
-            "neutral": sentiment_counts.get(0, 0)  # neutral
+            "neutral": sentiment_counts.get(0, 0),  # neutral
+            "happy": sentiment_counts.get(1, 0),    # happy
+            "funny": sentiment_counts.get(2, 0),    # funny  
+            "fear": sentiment_counts.get(3, 0),     # fear
+            "sad": sentiment_counts.get(4, 0),      # sad
         }
         
         # Convert to percentages
@@ -308,7 +306,7 @@ class YouTubeCommentAnalyzer:
         return emotion_percentages
     
     def _convert_predictions_to_emotions(self, predictions):
-        """Convert sentiment predictions to emotion percentages"""
+        """Convert sentiment predictions to emotion percentages (5 ML emotions only)"""
         # Count each sentiment label
         counts = [predictions.count(i) for i in range(5)]
         total = len(predictions)
@@ -316,31 +314,26 @@ class YouTubeCommentAnalyzer:
         if total == 0:
             return self._get_default_emotions()
         
-        # Convert counts to percentages and map to emotions
+        # Convert counts to percentages and map to 5 ML emotions
         # Sentiment mapping: 0=neutral, 1=happy, 2=funny, 3=fear, 4=sad
         emotions = {
             "neutral": round((counts[0] / total) * 100, 2),
-            "happy": round(((counts[1] + counts[2]) / total) * 100, 2),  # happy + funny
+            "happy": round((counts[1] / total) * 100, 2),    
+            "funny": round((counts[2] / total) * 100, 2),   
             "fear": round((counts[3] / total) * 100, 2),
-            "sad": round((counts[4] / total) * 100, 2),
-            "anger": 5,  # Default small amount
-            "disgust": 3,  # Default small amount  
-            "surprise": max(0, 100 - sum([
-                round((counts[0] / total) * 100, 2),
-                round(((counts[1] + counts[2]) / total) * 100, 2),
-                round((counts[3] / total) * 100, 2),
-                round((counts[4] / total) * 100, 2),
-                5, 3
-            ]))
+            "sad": round((counts[4] / total) * 100, 2)
         }
         
         return emotions
     
     def _get_default_emotions(self):
-        """Get default emotion distribution"""
+        """Get default emotion distribution for 5 ML emotions"""
         return {
-            "anger": 5, "disgust": 3, "fear": 10,
-            "happy": 40, "sad": 15, "surprise": 12, "neutral": 15
+            "neutral": 20, 
+            "happy": 30, 
+            "funny": 15, 
+            "fear": 15, 
+            "sad": 20
         }
     
     def analyze_video_comments(self, video_url: str) -> Dict:

@@ -7,10 +7,11 @@ import Videos from './Components/Videos/Videos.jsx';
 import Contact from './Components/Contact/Contact.jsx';
 import Contribute from './Components/Contribute/Contribute.jsx';
 import Footer from './Components/Footer/Footer.jsx';
-import Anger from "./Components/Emotions/Anger";  // Import each emotion page
 import Happy from "./Components/Emotions/Happy"; // Example, repeat for all
 import Sad from "./Components/Emotions/Sad";
 import Fear from "./Components/Emotions/Fear";
+import Funny from "./Components/Emotions/Funny"; // New ML emotion
+import Neutral from "./Components/Emotions/Neutral"; // New ML emotion
 
 const App = () => {
     const [theme, setTheme] = useState('light');
@@ -40,7 +41,13 @@ const App = () => {
                         <Route path="/videos" element={<Videos theme={theme} />} />
                         <Route path="/contact" element={<Contact theme={theme} />} />
                         <Route path="/contribute" element={<Contribute theme={theme} />} />
-                        <Route path="/emotions/anger" element={<Anger />} />
+                        <Route path="/emotions/Neutral" element={<Neutral />} />
+                        <Route path="/emotions/Happy" element={<Happy />} />
+                        <Route path="/emotions/Funny" element={<Funny />} />
+                        <Route path="/emotions/Fear" element={<Fear />} />
+                        <Route path="/emotions/Sad" element={<Sad />} />
+
+                        {/* Legacy routes for old emotion names */}
                         <Route path="/emotions/happy" element={<Happy />} />
                         <Route path="/emotions/sad" element={<Sad />} />
                         <Route path="/emotions/fear" element={<Fear />} />

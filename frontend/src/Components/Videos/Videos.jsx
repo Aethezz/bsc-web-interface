@@ -39,8 +39,32 @@ const VideoAnalysisTester = ({ theme }) => {
       sad: 0,
       surprise: 0,
       neutral: 0,
+      funny: 0,  // Include funny for ML compatibility
     };
   }
+
+  // Helper function to get supported emotions based on analysis mode
+  const getSupportedEmotions = (mode) => {
+    if (mode === 'ml') {
+      // ML Analysis: Only show the 5 emotions actually supported by the model
+      return ['neutral', 'happy', 'funny', 'fear', 'sad'];
+    } else {
+      // Live Analysis: Show all 7 emotions for broader tracking
+      return ['anger', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral'];
+    }
+  };
+
+  // Helper function to filter emotion data based on analysis mode
+  const getFilteredEmotionData = (emotionData, mode) => {
+    const supportedEmotions = getSupportedEmotions(mode);
+    const filtered = {};
+
+    supportedEmotions.forEach(emotion => {
+      filtered[emotion] = emotionData[emotion] || 0;
+    });
+
+    return filtered;
+  };
 
   const getEmotionEmoji = (emotion) => {
     const emojis = {
@@ -48,6 +72,7 @@ const VideoAnalysisTester = ({ theme }) => {
       disgust: '🤢',
       fear: '😨',
       happy: '😊',
+      funny: '😂',
       sad: '😢',
       surprise: '😲',
       neutral: '😐',
@@ -83,6 +108,12 @@ const VideoAnalysisTester = ({ theme }) => {
     window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
+
+  // Reset emotion data when analysis mode changes
+  useEffect(() => {
+    setEmotionData(initEmotionData());
+    setEmotionTrendData([]);
+  }, [analysisMode]);
 
   const checkExistingVideo = async (link) => {
     const existingVideo = videos.find(video => video.youtube_link === link);
@@ -121,9 +152,10 @@ const VideoAnalysisTester = ({ theme }) => {
         console.log(`[FRONTEND] ✅ Analysis complete!`);
         console.log(`[FRONTEND] Response data:`, response.data);
 
-        const predictedEmotion = response.data.dominant_emotion;
-        console.log(`[FRONTEND] 🎯 Predicted emotion: ${predictedEmotion}`);
-        console.log(`[FRONTEND] 🏷️ Sentiment label: ${response.data.sentiment_label}`);
+        const predictedEmotion = response.data.xgboost_emotion; // XGBoost dominant emotion for popup
+        console.log(`[FRONTEND] 🎯 XGBoost predicted emotion: ${predictedEmotion}`);
+        console.log(`[FRONTEND] 🏷️ Random Forest sentiment label: ${response.data.sentiment_label}`);
+        console.log(`[FRONTEND] 🏛️ Backend dominant_emotion (RF): ${response.data.dominant_emotion}`);
         console.log(`[FRONTEND] 📦 Full response data:`, response.data);
 
         setAnalysisStatus(`Analysis complete! Predicted emotion: ${predictedEmotion.toUpperCase()} (from top ${response.data.total_comments_analyzed} comments)`);
@@ -163,7 +195,29 @@ const VideoAnalysisTester = ({ theme }) => {
           setEmotionData(sentimentEmotions);
           setIsFullAnalysisComplete(true);
 
-          console.log(`[FRONTEND] ✅ Results saved to database`);
+          // Save ML analysis results to database using Random Forest sentiment label
+          try {
+            console.log(`[FRONTEND] 💾 Saving ML analysis results to database...`);
+            const sentimentLabel = response.data.sentiment_label; // Use Random Forest model result
+            const analysisResults = response.data.main_result;
+            const videoTitle = analysisResults.video_title || 'Unknown Video';
+            const commentsUsed = analysisResults.comments_used || [];
+            const totalComments = analysisResults.total_comments_analyzed || 0;
+
+            console.log(`[FRONTEND] 🏷️ Using Random Forest sentiment label for storage: ${sentimentLabel}`);
+            console.log(`[FRONTEND] 📹 Video title for storage: ${videoTitle}`);
+            console.log(`[FRONTEND] 💬 Comments analyzed: ${totalComments}`);
+
+            await StoreVideo(youtubeLink, sentimentEmotions, sentimentLabel, {
+              video_title: videoTitle,
+              comments_used: commentsUsed,
+              total_comments_analyzed: totalComments
+            });
+            console.log(`[FRONTEND] ✅ ML analysis results saved to database with sentiment label: ${sentimentLabel}`);
+          } catch (error) {
+            console.error(`[FRONTEND] ❌ Failed to save ML analysis to database:`, error);
+            // StoreVideo already shows user alert, so we just log the error
+          }
 
           // Show predicted emotion to user with rich details
           setTimeout(() => {
@@ -372,11 +426,13 @@ const VideoAnalysisTester = ({ theme }) => {
       setIsFullAnalysisComplete(true);
 
       try {
-        await createVideo({
-          youtube_link: youtubeLink,
-          emotion_data: mockData,
-          main_emotion: getDominantEmotion(mockData),
-        });
+        const mockDominant = getDominantEmotion(mockData);
+        const mockMetadata = {
+          video_title: 'Mock Analysis Video',
+          comments_used: ['Mock comment 1', 'Mock comment 2'],
+          total_comments_analyzed: 2
+        };
+        await StoreVideo(youtubeLink, mockData, mockDominant, mockMetadata);
       } catch (storeError) {
         console.error('Failed to store mock results:', storeError);
       }
@@ -414,6 +470,7 @@ const VideoAnalysisTester = ({ theme }) => {
       disgust: '#228B22',
       fear: '#800080',
       happy: '#FFD700',
+      funny: '#FFA500', // Orange for funny
       sad: '#4169E1',
       surprise: '#FF69B4',
       neutral: '#808080',
@@ -513,16 +570,25 @@ const VideoAnalysisTester = ({ theme }) => {
     clearInterval(videoTimerRef.current);
   };
 
-  const StoreVideo = async (link, data) => {
-    const dominant = getDominantEmotion(data);
+  const StoreVideo = async (link, data, mainEmotion = null, metadata = {}) => {
+    const dominant = mainEmotion || getDominantEmotion(data);
+    console.log(`[FRONTEND] 🏪 Storing video with main_emotion: ${dominant}`);
+    console.log(`[FRONTEND] 📹 Video metadata:`, metadata);
+    if (mainEmotion) {
+      console.log(`[FRONTEND] 🔄 Using Random Forest sentiment label: ${mainEmotion} (instead of XGBoost dominant: ${getDominantEmotion(data)})`);
+    }
     try {
       await createVideo({
         youtube_link: link,
         emotion_data: data,
         main_emotion: dominant,
+        video_title: metadata.video_title || 'Unknown Video',
+        comments_used: metadata.comments_used || [],
+        total_comments_analyzed: metadata.total_comments_analyzed || 0,
       });
       alert('Video analysis saved successfully!');
     } catch (e) {
+      console.error('[FRONTEND] StoreVideo error:', e);
       alert('Failed to store video analysis.');
     }
   };
@@ -548,7 +614,12 @@ const VideoAnalysisTester = ({ theme }) => {
           stopLiveEmotionUpdates();
           setVideoSrc(`https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1`);
           setAnalysisStatus('Live analysis stopped');
-          StoreVideo(youtubeLink, emotionData);
+          const liveMetadata = {
+            video_title: 'Live Analysis Video',
+            comments_used: [],
+            total_comments_analyzed: 0
+          };
+          StoreVideo(youtubeLink, emotionData, null, liveMetadata);
         }
         return newVal;
       });
@@ -674,8 +745,19 @@ const VideoAnalysisTester = ({ theme }) => {
 
           <div className="right-panel">
             <div className="emotion-results card">
-              <h3>Live Emotion Breakdown</h3>
-              {Object.entries(emotionData).map(([emotion, value]) => (
+              <h3>
+                {analysisMode === 'ml'
+                  ? 'Comments Sentiment Emotions (5 Supported)'
+                  : 'Live Emotion Breakdown (7 Emotions)'
+                }
+              </h3>
+              <div className="emotion-mode-info">
+                {analysisMode === 'ml'
+                  ? '🤖 Shows: neutral, happy, funny, fear, sad'
+                  : '📊 Shows: all 7 emotion categories'
+                }
+              </div>
+              {Object.entries(getFilteredEmotionData(emotionData, analysisMode)).map(([emotion, value]) => (
                 <div key={emotion} className="emotion-stat-row">
                   <span className="emotion-label">{getEmotionEmoji(emotion)} {emotion}</span>
                   <div className="stat-bar-container">
@@ -689,7 +771,13 @@ const VideoAnalysisTester = ({ theme }) => {
               ))}
             </div>
             <button className="control-button" onClick={handleStartAnalysis} disabled={!videoId}>
-              {isAnalyzing ? <FaPause /> : <FaPlayCircle />} {isAnalyzing ? 'Pause Analysis' : 'Start Live Analysis'}
+              {isAnalyzing ? <FaPause /> : <FaPlayCircle />}
+              {isAnalyzing
+                ? 'Pause Analysis'
+                : analysisMode === 'ml'
+                  ? 'Start Analysis'
+                  : 'Start Live Analysis'
+              }
             </button>
           </div>
         </div>

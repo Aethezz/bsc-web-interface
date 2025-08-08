@@ -15,7 +15,7 @@ export const getVideos = async (req, res) => {
 };
 
 export const createVideo = async (req, res) => {
-    const { youtube_link, emotion_data, main_emotion } = req.body;
+    const { youtube_link, emotion_data, main_emotion, video_title, comments_used, total_comments_analyzed } = req.body;
 
     if (!youtube_link || typeof youtube_link !== "string") {
         return res.status(400).json({ success: false, message: "Invalid or missing YouTube link" });
@@ -25,19 +25,41 @@ export const createVideo = async (req, res) => {
         return res.status(400).json({ success: false, message: "Invalid or missing emotion data" });
     }
 
+    console.log(`[CREATE VIDEO] 📝 Received data: title="${video_title}", comments=${total_comments_analyzed}, emotion=${main_emotion}`);
+
     try {
         const existingVideo = await Video.findOne({ youtube_link });
 
         if (existingVideo) {
-            console.log(`[CREATE VIDEO] 🔍 Duplicate detected: ${youtube_link}`);
-            return res.status(409).json({
-                success: false,
-                message: "Video with this YouTube link already exists",
-                existingVideo: existingVideo
+            console.log(`[CREATE VIDEO] 🔄 Updating existing video with new analysis: ${youtube_link}`);
+            console.log(`[CREATE VIDEO] Old main_emotion: ${existingVideo.main_emotion}, New main_emotion: ${main_emotion}`);
+            console.log(`[CREATE VIDEO] Old title: ${existingVideo.video_title}, New title: ${video_title}`);
+
+            // Update existing video with new emotion data and metadata
+            existingVideo.emotion_data = emotion_data;
+            existingVideo.main_emotion = main_emotion;
+            existingVideo.video_title = video_title || existingVideo.video_title || 'Unknown Video';
+            existingVideo.comments_used = comments_used || existingVideo.comments_used || [];
+            existingVideo.total_comments_analyzed = total_comments_analyzed || existingVideo.total_comments_analyzed || 0;
+            await existingVideo.save();
+
+            console.log(`[CREATE VIDEO] ✅ Video updated successfully: ${youtube_link}`);
+
+            return res.status(200).json({
+                success: true,
+                data: existingVideo,
+                message: "Video updated with new analysis"
             });
         }
 
-        const video = new Video({ youtube_link, emotion_data, main_emotion });
+        const video = new Video({
+            youtube_link,
+            emotion_data,
+            main_emotion,
+            video_title: video_title || 'Unknown Video',
+            comments_used: comments_used || [],
+            total_comments_analyzed: total_comments_analyzed || 0
+        });
         await video.save();
 
         console.log(`[CREATE VIDEO] ✅ New video saved: ${youtube_link}`);
@@ -123,21 +145,6 @@ export const analyzeVideo = async (req, res) => {
         return res.status(400).json({ success: false, message: "Could not extract video ID from YouTube link" });
     }
 
-    if (global.processingVideos && global.processingVideos.has(videoId)) {
-        console.log(`[BACKEND] 🚫 Video ${videoId} is already being processed, returning cached response`);
-        return res.status(429).json({
-            success: false,
-            message: "Video is already being analyzed. Please wait for completion."
-        });
-    }
-
-    if (!global.processingVideos) {
-        global.processingVideos = new Set();
-    }
-
-    // Mark video as being processed
-    global.processingVideos.add(videoId);
-
     try {
         console.log(`[BACKEND] ========== STARTING ML ANALYSIS ==========`);
         console.log(`[BACKEND] Analyzing video with ML service: ${youtube_link}`);
@@ -156,20 +163,26 @@ export const analyzeVideo = async (req, res) => {
         console.log('[BACKEND] ML Service Response:', JSON.stringify(mlResponse.data, null, 2));
 
         const responseData = mlResponse.data;
-        let emotions, dominant_emotion, frame_count, comments_used = [], total_comments_analyzed = 0, video_title = "Unknown", emotion_comments = {};
+        let emotions, dominant_emotion, sentiment_label, xgboost_emotion, frame_count, comments_used = [], total_comments_analyzed = 0, video_title = "Unknown", emotion_comments = {};
 
         if (responseData.detailed_results) {
             const sentimentAnalysis = responseData.detailed_results.sentiment_analysis;
 
             if (sentimentAnalysis && sentimentAnalysis.emotions) {
                 emotions = sentimentAnalysis.emotions;
-                dominant_emotion = sentimentAnalysis.dominant_emotion;
+                // Store both emotions for reference
+                xgboost_emotion = sentimentAnalysis.dominant_emotion;
+                sentiment_label = sentimentAnalysis.sentiment_label;
+                // Use Random Forest sentiment_label instead of XGBoost dominant_emotion for database storage
+                dominant_emotion = sentiment_label || xgboost_emotion;
                 comments_used = sentimentAnalysis.comments_used || [];
                 total_comments_analyzed = sentimentAnalysis.total_comments_analyzed || 0;
                 video_title = sentimentAnalysis.video_title || "Unknown";
                 emotion_comments = sentimentAnalysis.emotion_comments || {};
                 console.log(`[BACKEND] Using sentiment analysis emotions: ${JSON.stringify(emotions)}`);
-                console.log(`[BACKEND] Dominant emotion from sentiment: ${dominant_emotion}`);
+                console.log(`[BACKEND] XGBoost dominant emotion: ${xgboost_emotion}`);
+                console.log(`[BACKEND] Random Forest sentiment label: ${sentiment_label}`);
+                console.log(`[BACKEND] Using for database: ${dominant_emotion}`);
                 console.log(`[BACKEND] Emotion comments: ${JSON.stringify(emotion_comments)}`);
                 console.log(`[BACKEND] Analyzed top ${total_comments_analyzed} comments sorted by like count`);
                 console.log(`[BACKEND] Sample top comments: ${comments_used.slice(0, 3).join(' | ')}`);
@@ -177,6 +190,8 @@ export const analyzeVideo = async (req, res) => {
                 console.log(`[BACKEND] No sentiment analysis data found, using fallback`);
                 emotions = get_fallback_emotions();
                 dominant_emotion = "neutral";
+                sentiment_label = "neutral";
+                xgboost_emotion = "neutral";
                 emotion_comments = {};
             }
 
@@ -184,7 +199,9 @@ export const analyzeVideo = async (req, res) => {
         } else {
             // Fallback to old format if available
             emotions = responseData.emotions;
-            dominant_emotion = responseData.dominant_emotion;
+            xgboost_emotion = responseData.dominant_emotion;
+            sentiment_label = responseData.sentiment_label || responseData.dominant_emotion;
+            dominant_emotion = sentiment_label || xgboost_emotion;
             frame_count = responseData.frame_count;
             comments_used = responseData.comments_used || [];
             total_comments_analyzed = responseData.total_comments_analyzed || 0;
@@ -208,46 +225,27 @@ export const analyzeVideo = async (req, res) => {
             dominant_emotion = 'neutral';
         }
 
-        console.log(`[BACKEND] Final emotion data: emotions=${JSON.stringify(emotions)}, dominant=${dominant_emotion}`);
-
-        // Always perform fresh analysis - don't check for existing videos
-        console.log(`[BACKEND] Performing fresh analysis (no caching)...`);
-
-        // Always create/update with fresh data
-        let video = await Video.findOne({ youtube_link });
-
-        if (video) {
-            console.log(`[BACKEND] ✅ Updating existing video with fresh analysis: ${video._id}`);
-            video.emotion_data = emotions;
-            video.main_emotion = dominant_emotion;
-            video.video_title = video_title;
-            video.comments_used = comments_used;
-            video.total_comments_analyzed = total_comments_analyzed;
-            await video.save();
-            console.log(`[BACKEND] ✅ Video updated with fresh analysis!`);
-        } else {
-            console.log(`[BACKEND] Creating new video record with fresh analysis...`);
-            video = new Video({
-                youtube_link,
-                emotion_data: emotions,
-                main_emotion: dominant_emotion,
-                video_title: video_title,
-                comments_used: comments_used,
-                total_comments_analyzed: total_comments_analyzed
-            });
-            await video.save();
-            console.log(`[BACKEND] ✅ New video created with fresh analysis!`);
+        if (!sentiment_label) {
+            sentiment_label = 'neutral';
         }
 
-        console.log(`[BACKEND] Video saved with ID: ${video._id}`);
+        if (!xgboost_emotion) {
+            xgboost_emotion = 'neutral';
+        }
+
+        console.log(`[BACKEND] Final emotion data: emotions=${JSON.stringify(emotions)}, dominant=${dominant_emotion}, sentiment_label=${sentiment_label}`);
+
+        // Return analysis results without auto-saving - let frontend handle storage with correct sentiment label
+        console.log(`[BACKEND] ✅ Analysis complete - returning data to frontend for storage`);
         console.log(`[BACKEND] ========== ML ANALYSIS COMPLETE ==========`);
 
         res.status(200).json({
             success: true,
             data: {
-                video,
                 emotions,
                 dominant_emotion,
+                sentiment_label,
+                xgboost_emotion,
                 emotion_comments,
                 frame_count,
                 detailed_results: responseData.detailed_results,
@@ -256,10 +254,12 @@ export const analyzeVideo = async (req, res) => {
                     comments_used: comments_used,
                     total_comments_analyzed: total_comments_analyzed,
                     dominant_emotion: dominant_emotion,
+                    sentiment_label: sentiment_label,
+                    xgboost_emotion: xgboost_emotion,
                     emotions: emotions,
                     emotion_comments: emotion_comments
                 },
-                message: "Video analyzed successfully"
+                message: "Video analyzed successfully - ready for storage"
             }
         });
 
@@ -287,12 +287,6 @@ export const analyzeVideo = async (req, res) => {
             success: false,
             message: "Failed to analyze video"
         });
-    } finally {
-        // Always clean up processing tracker
-        if (videoId && global.processingVideos) {
-            global.processingVideos.delete(videoId);
-            console.log(`[BACKEND] 🧹 Cleaned up processing tracker for video ${videoId}`);
-        }
     }
 };
 

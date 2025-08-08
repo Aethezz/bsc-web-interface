@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // Import axios for HTTP requests
 import { getVideos } from "../../api/videos"; // Import your backend API functions
 
 const Anger = () => {
@@ -12,32 +11,32 @@ const Anger = () => {
                 // Fetch all videos from the backend
                 const fetchedVideos = await getVideos();
 
-                // Filter videos where the dominant emotion is "joy"
-                const filteredVideos = await Promise.all(
-                    fetchedVideos
-                        .filter((video) => video.main_emotion === "anger")
-                        .map(async (video, index) => {
-                            const videoId = video.youtube_link.split("v=")[1]; // Extract the YouTube video ID
-                            if (!videoId) return null; // Skip invalid links
+                // Filter videos where the dominant emotion is "anger"
+                const filteredVideos = fetchedVideos
+                    .filter((video) => video.main_emotion === "anger")
+                    .map((video, index) => {
+                        // Extract video ID more reliably
+                        let videoId = null;
+                        if (video.youtube_link.includes("v=")) {
+                            videoId = video.youtube_link.split("v=")[1].split("&")[0];
+                        } else if (video.youtube_link.includes("youtu.be/")) {
+                            videoId = video.youtube_link.split("youtu.be/")[1].split("?")[0];
+                        }
 
-                            // Fetch video details from YouTube oEmbed endpoint
-                            const oEmbedResponse = await axios.get(
-                                `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
-                            );
+                        if (!videoId) return null; // Skip invalid links
 
-                            const videoDetails = oEmbedResponse.data;
-                            return {
-                                id: index + 1, // Assign a sequential ID
-                                title: videoDetails.title, // Extract the title
-                                url: video.youtube_link,
-                                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
-                            };
-                        })
-                );
+                        return {
+                            id: index + 1, // Assign a sequential ID
+                            title: video.video_title || `Video ${index + 1}`, // Use stored title or fallback
+                            url: video.youtube_link,
+                            thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                            thumbnailFallback: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                            videoId: videoId
+                        };
+                    })
+                    .filter((video) => video !== null); // Filter out invalid videos
 
-                // Filter out any null values (invalid videos)
-                const validVideos = filteredVideos.filter((video) => video !== null);
-                setVideos(validVideos); // Update the state with valid videos
+                setVideos(filteredVideos); // Update the state with valid videos
             } catch (error) {
                 console.error("Error fetching videos:", error.message);
                 setVideos([]); // Reset videos state in case of error
@@ -58,7 +57,19 @@ const Anger = () => {
                     videos.map((video) => (
                         <div key={video.id} className="video-card">
                             <a href={video.url} target="_blank" rel="noopener noreferrer">
-                                <img src={video.thumbnail} alt={video.title} className="video-thumbnail" />
+                                <img
+                                    src={video.thumbnail}
+                                    alt={video.title}
+                                    className="video-thumbnail"
+                                    onError={(e) => {
+                                        // Fallback to lower quality thumbnail if high quality fails
+                                        e.target.src = video.thumbnailFallback;
+                                        e.target.onerror = () => {
+                                            // Final fallback to YouTube default
+                                            e.target.src = `https://img.youtube.com/vi/${video.videoId}/default.jpg`;
+                                        };
+                                    }}
+                                />
                                 <h3>{video.title}</h3>
                             </a>
                         </div>
