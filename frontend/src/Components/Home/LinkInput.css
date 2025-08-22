@@ -1,3 +1,159 @@
+.emotion-bar-chart {
+    margin: 18px 0 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.emotion-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.emotion-bar-label {
+    width: 110px;
+    text-align: right;
+    font-weight: 500;
+    font-size: 1em;
+}
+
+.emotion-bar-outer {
+    flex: 1;
+    height: 18px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 8px;
+}
+
+.emotion-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.5s;
+}
+
+.emotion-bar-value {
+    min-width: 38px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.batch-upload-section {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.batch-link-textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    resize: vertical;
+}
+
+.batch-results-pretty {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: 20px 0;
+    width: 100%;
+    min-width: 0;
+}
+
+.batch-results-pretty.colourful {
+    background: linear-gradient(90deg, #f9f9f9 60%, #e3f2fd 100%);
+}
+
+.batch-list {
+    min-width: 220px;
+    max-width: 320px;
+    border-right: 1px solid #e0e0e0;
+    padding: 0 12px;
+    flex: 1 1 220px;
+    word-break: break-all;
+}
+
+.batch-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.batch-list li {
+    padding: 10px 0;
+    cursor: pointer;
+    border-bottom: 1px solid #ececec;
+    transition: background 0.2s;
+}
+
+.batch-list li.selected {
+    background: #e6f0ff;
+    font-weight: bold;
+}
+
+.batch-list li:hover {
+    background: #f0f6ff;
+}
+
+.batch-list .video-link {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.batch-list .error {
+    color: #d32f2f;
+    font-size: 0.95em;
+}
+
+.batch-details {
+    flex: 2 1 350px;
+    min-width: 0;
+    padding: 0 12px;
+    word-break: break-word;
+}
+
+.result-details {
+    margin-top: 8px;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 4px;
+    margin-top: 8px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.result-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 1.05em;
+}
+
+.result-table tr:last-child td {
+    border-bottom: none;
+}
+
+.colourful-table tr td:first-child {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.error {
+    color: #d32f2f;
+    margin-top: 8px;
+}
+
 .link-input-form {
     display: flex;
     justify-content: center;

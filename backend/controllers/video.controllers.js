@@ -1,3 +1,81 @@
+import { Parser as Json2csvParser } from 'json2csv';
+// Batch analyze multiple YouTube links and return results as JSON or CSV
+export const batchAnalyzeVideos = async (req, res) => {
+    let { youtube_links, output_format } = req.body;
+    if (!Array.isArray(youtube_links) || youtube_links.length === 0) {
+        return res.status(400).json({ success: false, message: "youtube_links must be a non-empty array" });
+    }
+
+    output_format = output_format || 'json';
+    const results = [];
+    for (const link of youtube_links) {
+        try {
+            // Call ML service for each link
+            const mlResponse = await axios.post(`${ML_SERVICE_URL}/analyze`, { youtube_url: link }, { timeout: 300000 });
+            const data = mlResponse.data;
+            // Extract fields as in analyzeVideo
+            let emotions, dominant_emotion, sentiment_label, xgboost_emotion, frame_count, comments_used = [], total_comments_analyzed = 0, video_title = "Unknown", emotion_comments = {};
+            if (data.detailed_results) {
+                const sentimentAnalysis = data.detailed_results.sentiment_analysis;
+                if (sentimentAnalysis && sentimentAnalysis.emotions) {
+                    emotions = sentimentAnalysis.emotions;
+                    xgboost_emotion = sentimentAnalysis.dominant_emotion;
+                    sentiment_label = sentimentAnalysis.sentiment_label;
+                    dominant_emotion = sentiment_label || xgboost_emotion;
+                    comments_used = sentimentAnalysis.comments_used || [];
+                    total_comments_analyzed = sentimentAnalysis.total_comments_analyzed || 0;
+                    video_title = sentimentAnalysis.video_title || "Unknown";
+                    emotion_comments = sentimentAnalysis.emotion_comments || {};
+                } else {
+                    emotions = {};
+                    dominant_emotion = "neutral";
+                    sentiment_label = "neutral";
+                    xgboost_emotion = "neutral";
+                    emotion_comments = {};
+                }
+                frame_count = data.detailed_results.emotion_recognition?.frame_count;
+            } else {
+                emotions = data.emotions;
+                xgboost_emotion = data.dominant_emotion;
+                sentiment_label = data.sentiment_label || data.dominant_emotion;
+                dominant_emotion = sentiment_label || xgboost_emotion;
+                frame_count = data.frame_count;
+                comments_used = data.comments_used || [];
+                total_comments_analyzed = data.total_comments_analyzed || 0;
+                video_title = data.video_title || "Unknown";
+                emotion_comments = data.emotion_comments || {};
+            }
+            results.push({
+                youtube_link: link,
+                emotions,
+                dominant_emotion,
+                sentiment_label,
+                xgboost_emotion,
+                emotion_comments,
+                frame_count,
+                comments_used,
+                total_comments_analyzed,
+                video_title
+            });
+        } catch (error) {
+            results.push({ youtube_link: link, error: error.message });
+        }
+    }
+
+    if (output_format === 'csv') {
+        try {
+            const fields = Object.keys(results[0] || {});
+            const json2csv = new Json2csvParser({ fields });
+            const csv = json2csv.parse(results);
+            res.header('Content-Type', 'text/csv');
+            res.attachment('batch_analysis_results.csv');
+            return res.send(csv);
+        } catch (err) {
+            return res.status(500).json({ success: false, message: 'CSV generation failed', error: err.message });
+        }
+    }
+    res.json({ success: true, results });
+};
 import mongoose from "mongoose";
 import { Video, StaticRating, DynamicRating } from '../models/videos.model.js';
 import axios from 'axios';
