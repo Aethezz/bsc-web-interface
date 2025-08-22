@@ -1,7 +1,10 @@
+
 import express from "express";
-import { deleteVideo, getVideos, createVideo, updateVideo, clearDatabase, analyzeVideo, getRealtimeEmotions, clearDuplicateVideos } from "../controllers/video.controllers.js";
+import { deleteVideo, getVideos, createVideo, updateVideo, clearDatabase, analyzeVideo, getRealtimeEmotions, clearDuplicateVideos, batchAnalyzeVideos } from "../controllers/video.controllers.js";
 
 const router = express.Router();
+// Batch analyze multiple YouTube links
+router.post('/batch-analyze', batchAnalyzeVideos);
 
 // Route to gather and list all video data
 router.get("/", getVideos);

@@ -1,3 +1,26 @@
+// Batch analyze multiple YouTube links
+export const batchAnalyzeVideos = async (youtubeLinks, outputFormat = 'json') => {
+    try {
+        const url = `${API_URL}/batch-analyze`;
+        if (outputFormat === 'csv') {
+            // Download CSV as file
+            const response = await axios.post(url, { youtube_links: youtubeLinks, output_format: 'csv' }, { responseType: 'blob' });
+            const blob = new Blob([response.data], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'batch_analysis_results.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return;
+        } else {
+            const response = await axios.post(url, { youtube_links: youtubeLinks, output_format: 'json' });
+            return response.data;
+        }
+    } catch (error) {
+        throw error;
+    }
+};
 import axios from "axios";
 
 // Use production URL when deployed, localhost for development
