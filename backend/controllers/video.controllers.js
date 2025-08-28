@@ -76,9 +76,26 @@ export const batchAnalyzeVideos = async (req, res) => {
     }
     res.json({ success: true, results });
 };
+
 import mongoose from "mongoose";
 import { Video, StaticRating, DynamicRating } from '../models/videos.model.js';
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
+
+// Retry up to 5 times, with 3s, 6s, 9s, 12s, 15s delays, on 429 or 503 errors
+axiosRetry(axios, {
+    retries: 5,
+    retryDelay: (retryCount) => retryCount * 3000,
+    retryCondition: (error) => {
+        return (
+            axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+            (error.response && (error.response.status === 429 || error.response.status === 503))
+        );
+    },
+    onRetry: (retryCount, error, requestConfig) => {
+        console.log(`[ML SERVICE] Retry attempt ${retryCount} for ${requestConfig.url} due to status ${error.response?.status}`);
+    }
+});
 
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:5002';
 
