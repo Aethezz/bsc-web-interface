@@ -15,7 +15,12 @@ export const batchAnalyzeVideos = async (req, res) => {
             let wokeUp = false;
             while (wakeTries < 7 && !wokeUp) {
                 try {
-                    const wakeResp = await axios.get(ML_SERVICE_URL, { timeout: 5000 });
+                    const wakeResp = await axios.get(ML_SERVICE_URL, {
+                        timeout: 5000,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+                        }
+                    });
                     // If 200 or 404, service is awake
                     wokeUp = true;
                 } catch (err) {
