@@ -82,10 +82,10 @@ import { Video, StaticRating, DynamicRating } from '../models/videos.model.js';
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 
-// Retry up to 5 times, with 3s, 6s, 9s, 12s, 15s delays, on 429 or 503 errors
+// Retry up to 6 times, with 10s delay between retries, on 429 or 503 errors
 axiosRetry(axios, {
-    retries: 5,
-    retryDelay: (retryCount) => retryCount * 3000,
+    retries: 6,
+    retryDelay: () => 10000, // 10 seconds between retries
     retryCondition: (error) => {
         return (
             axiosRetry.isNetworkOrIdempotentRequestError(error) ||
