@@ -10,6 +10,25 @@ export const batchAnalyzeVideos = async (req, res) => {
     const results = [];
     for (const link of youtube_links) {
         try {
+            // Wake up ML service with GET request to root
+            let wakeTries = 0;
+            let wokeUp = false;
+            while (wakeTries < 7 && !wokeUp) {
+                try {
+                    const wakeResp = await axios.get(ML_SERVICE_URL, { timeout: 5000 });
+                    // If 200 or 404, service is awake
+                    wokeUp = true;
+                } catch (err) {
+                    if (err.response && err.response.status === 429) {
+                        console.log(`[ML WAKEUP] ML service returned 429, waiting 10s (try ${wakeTries + 1})`);
+                        await new Promise(res => setTimeout(res, 10000));
+                        wakeTries++;
+                    } else {
+                        // If 404, 200, or other, assume awake or not found
+                        wokeUp = true;
+                    }
+                }
+            }
             // Call ML service for each link
             const mlResponse = await axios.post(`${ML_SERVICE_URL}/analyze`, { youtube_url: link }, { timeout: 300000 });
             const data = mlResponse.data;
